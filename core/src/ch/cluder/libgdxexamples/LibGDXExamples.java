@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
@@ -21,10 +22,13 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import ch.cluder.libgdxexamples.input.UIInputController;
 
 public class LibGDXExamples extends ApplicationAdapter {
-	SpriteBatch batch;
-	Texture img;
+	SpriteBatch uiTextBatch;
+	Texture uiText;
 
-	public PerspectiveCamera cam;
+	OrthographicCamera cam2d;
+
+	// perspective 3d camera
+	public PerspectiveCamera cam3d;
 	public CameraInputController inputController;
 
 	// axes / grid (from BaseG3dTest)
@@ -41,25 +45,28 @@ public class LibGDXExamples extends ApplicationAdapter {
 
 		modelBatch = new ModelBatch();
 
+		cam2d = new OrthographicCamera();
+		cam2d.setToOrtho(false, 800, 600);
+
 		// create a 3d camera
-		cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		cam.position.set(10f, 10f, 10f);
-		cam.lookAt(0, 0, 0);
-		cam.near = 0.1f;
-		cam.far = 1000f;
-		cam.update();
+		cam3d = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		cam3d.position.set(10f, 10f, 10f);
+		cam3d.lookAt(0, 0, 0);
+		cam3d.near = 0.1f;
+		cam3d.far = 1000f;
+		cam3d.update();
 
 		// create an input multiplexer to use multiple input handler
 		// (1st person camera and our own UI input handler)
 		InputMultiplexer inputMultiplexer = new InputMultiplexer();
-		inputController = new CameraInputController(cam);
+		inputController = new CameraInputController(cam3d);
 		inputMultiplexer.addProcessor(inputController);
 		inputMultiplexer.addProcessor(new UIInputController());
 
 		Gdx.input.setInputProcessor(inputMultiplexer);
 
-		batch = new SpriteBatch();
-		img = new Texture("text.png");
+		uiTextBatch = new SpriteBatch();
+		uiText = new Texture("text.png");
 
 		// debug axes / grid
 		createAxes();
@@ -69,6 +76,14 @@ public class LibGDXExamples extends ApplicationAdapter {
 	public void resize(int width, int height) {
 		super.resize(width, height);
 
+		// update 2d camera size
+		cam2d.setToOrtho(false, width, height);
+		cam2d.update();
+
+		// update 3d camera
+		cam3d.viewportHeight = height;
+		cam3d.viewportWidth = width;
+		cam3d.update();
 	}
 
 	@Override
@@ -78,23 +93,24 @@ public class LibGDXExamples extends ApplicationAdapter {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
 		// draw axes/grid
-		modelBatch.begin(cam);
+		modelBatch.begin(cam3d);
 		modelBatch.render(axesInstance);
 		modelBatch.end();
-		batch.begin();
 
 		// draw text in upper left corner
-		int yPos = Gdx.app.getGraphics().getHeight() - img.getHeight();
-		batch.draw(img, 0, yPos);
-		batch.end();
+		uiTextBatch.setProjectionMatrix(cam2d.combined);
+		uiTextBatch.begin();
+		int yPos = (int) (Gdx.app.getGraphics().getHeight() - uiText.getHeight());
+		uiTextBatch.draw(uiText, Gdx.app.getGraphics().getWidth() - uiText.getWidth(), yPos);
+		uiTextBatch.end();
 
 		Debugger.printDebugInfo();
 	}
 
 	@Override
 	public void dispose() {
-		batch.dispose();
-		img.dispose();
+		uiTextBatch.dispose();
+		uiText.dispose();
 	}
 
 	/**

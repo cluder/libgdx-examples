@@ -10,7 +10,7 @@ public class DesktopLauncher {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setWindowedMode(800, 600);
 		config.setTitle("libGDX Examples");
-		config.setResizable(false);
+		config.setResizable(true);
 
 		new Lwjgl3Application(new LibGDXExamples(), config);
 	}
