@@ -1,7 +1,9 @@
 package ch.cluder.libgdxexamples;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
@@ -15,6 +17,8 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+
+import ch.cluder.libgdxexamples.input.UIInputController;
 
 public class LibGDXExamples extends ApplicationAdapter {
 	SpriteBatch batch;
@@ -33,6 +37,8 @@ public class LibGDXExamples extends ApplicationAdapter {
 
 	@Override
 	public void create() {
+		Gdx.app.setLogLevel(Application.LOG_DEBUG);
+
 		modelBatch = new ModelBatch();
 
 		// create a 3d camera
@@ -43,29 +49,46 @@ public class LibGDXExamples extends ApplicationAdapter {
 		cam.far = 1000f;
 		cam.update();
 
-		// create a camera controller
-		Gdx.input.setInputProcessor(inputController = new CameraInputController(cam));
+		// create an input multiplexer to use multiple input handler
+		// (1st person camera and our own UI input handler)
+		InputMultiplexer inputMultiplexer = new InputMultiplexer();
+		inputController = new CameraInputController(cam);
+		inputMultiplexer.addProcessor(inputController);
+		inputMultiplexer.addProcessor(new UIInputController());
+
+		Gdx.input.setInputProcessor(inputMultiplexer);
 
 		batch = new SpriteBatch();
 		img = new Texture("text.png");
 
+		// debug axes / grid
 		createAxes();
 	}
 
 	@Override
+	public void resize(int width, int height) {
+		super.resize(width, height);
+
+	}
+
+	@Override
 	public void render() {
-		// black background
+		// clear screen and paint a black background
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-		batch.begin();
-		// draw text in upper left corner
-		batch.draw(img, 0, Gdx.app.getGraphics().getHeight() - img.getHeight());
-		batch.end();
-
+		// draw axes/grid
 		modelBatch.begin(cam);
 		modelBatch.render(axesInstance);
 		modelBatch.end();
+		batch.begin();
+
+		// draw text in upper left corner
+		int yPos = Gdx.app.getGraphics().getHeight() - img.getHeight();
+		batch.draw(img, 0, yPos);
+		batch.end();
+
+		Debugger.printDebugInfo();
 	}
 
 	@Override
