@@ -6,11 +6,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
@@ -18,18 +16,17 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import ch.cluder.libgdxexamples.input.UIInputController;
 import ch.cluder.libgdxexamples.ui.ChatInputListener;
 
 public class LibGDXExamples extends ApplicationAdapter {
-	SpriteBatch uiTextBatch;
-	Texture uiText;
-
-	OrthographicCamera cam2d;
 
 	// perspective 3d camera
 	public PerspectiveCamera cam3d;
@@ -44,32 +41,45 @@ public class LibGDXExamples extends ApplicationAdapter {
 	public ModelBatch modelBatch;
 
 	// chat
+	Stage uiStage;
 	ChatInputListener chatListener;
 	TextField chatField;
 	TextArea chatArea;
 
+	private Image uiTextureImage;
+
 	@Override
 	public void create() {
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
+
+		int width = Gdx.graphics.getWidth();
+		int height = Gdx.graphics.getHeight();
+
+		// ui stage
+		uiStage = new Stage(new ScreenViewport());
 
 		// init chat listener and fields
 		Skin defaultSkin = new Skin(Gdx.files.internal("uiskin.json"));
 		chatField = new TextField("", defaultSkin);
 		chatField.setWidth(200);
 		chatField.setMessageText("type to chat");
+		uiStage.addActor(chatField);
 
 		chatArea = new TextArea("", defaultSkin);
 		chatArea.setWidth(200);
 		chatArea.setPrefRows(5);
 		chatArea.setHeight(chatArea.getPrefHeight());
+		uiStage.addActor(chatArea);
 
+		Texture uiTexture = new Texture("text.png");
+		uiTextureImage = new Image(uiTexture);
+		uiStage.addActor(uiTextureImage);
+
+		// model batch used to render 3d objects
 		modelBatch = new ModelBatch();
 
-		cam2d = new OrthographicCamera();
-		cam2d.setToOrtho(false, 800, 600);
-
 		// create a 3d camera
-		cam3d = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		cam3d = new PerspectiveCamera(67, width, height);
 		cam3d.position.set(10f, 10f, 10f);
 		cam3d.lookAt(0, 0, 0);
 		cam3d.near = 0.1f;
@@ -85,21 +95,31 @@ public class LibGDXExamples extends ApplicationAdapter {
 
 		Gdx.input.setInputProcessor(inputMultiplexer);
 
-		uiTextBatch = new SpriteBatch();
-		uiText = new Texture("text.png");
-
 		// debug axes / grid
-		createAxes();
+		createGridid();
 
+		updateUIPosition();
+	}
+
+	/**
+	 * Sets/updates the position of the UI elements.
+	 */
+	private void updateUIPosition() {
+		int yPos = (int) (Gdx.app.getGraphics().getHeight() - uiTextureImage.getHeight());
+		uiTextureImage.setPosition(Gdx.app.getGraphics().getWidth() - uiTextureImage.getWidth(), yPos);
+		yPos = (int) (Gdx.graphics.getHeight() * 0.15f);
+		chatField.setPosition(Gdx.graphics.getWidth() * 0.01f, yPos);
+		chatArea.setPosition(Gdx.graphics.getWidth() * 0.01f, yPos + chatField.getHeight());
 	}
 
 	@Override
 	public void resize(int width, int height) {
 		super.resize(width, height);
 
-		// update 2d camera size
-		cam2d.setToOrtho(false, width, height);
-		cam2d.update();
+		// update 2d stage
+		uiStage.getViewport().update(width, height, true);
+
+		updateUIPosition();
 
 		// update 3d camera
 		cam3d.viewportHeight = height;
@@ -113,41 +133,28 @@ public class LibGDXExamples extends ApplicationAdapter {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
+		uiStage.act();
+		uiStage.draw();
+
 		// draw axes/grid
 		modelBatch.begin(cam3d);
 		modelBatch.render(axesInstance);
 		modelBatch.end();
-
-		// text (texture) in upper left corner
-		uiTextBatch.setProjectionMatrix(cam2d.combined);
-		uiTextBatch.begin();
-		int yPos = (int) (Gdx.app.getGraphics().getHeight() - uiText.getHeight());
-		uiTextBatch.draw(uiText, Gdx.app.getGraphics().getWidth() - uiText.getWidth(), yPos);
-
-		// chat field and area
-		yPos = (int) (Gdx.graphics.getHeight() * 0.15f);
-		chatField.setPosition(Gdx.graphics.getWidth() * 0.01f, yPos);
-		chatField.draw(uiTextBatch, 0.75f);
-
-		chatArea.setPosition(Gdx.graphics.getWidth() * 0.01f, yPos + chatField.getHeight());
-		chatArea.draw(uiTextBatch, 0.75f);
-		uiTextBatch.end();
 
 		Debugger.printDebugInfo();
 	}
 
 	@Override
 	public void dispose() {
-		uiTextBatch.dispose();
-		uiText.dispose();
+		uiStage.dispose();
 		axesModel.dispose();
 		modelBatch.dispose();
 	}
 
 	/**
-	 * Axses / Grid copied from BaseG3dTest.
+	 * Grid with debug axis copied from BaseG3dTest.
 	 */
-	private void createAxes() {
+	private void createGridid() {
 		ModelBuilder modelBuilder = new ModelBuilder();
 		modelBuilder.begin();
 		MeshPartBuilder builder = modelBuilder.part("grid", GL20.GL_LINES, Usage.Position | Usage.ColorUnpacked,
