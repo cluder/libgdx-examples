@@ -4,6 +4,7 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
@@ -36,9 +37,11 @@ public class LibGDXExamples extends ApplicationAdapter {
 	final float GRID_MIN = -10f;
 	final float GRID_MAX = 10f;
 	final float GRID_STEP = 1f;
+	public ModelBatch modelBatch;
 	public Model axesModel;
 	public ModelInstance axesInstance;
-	public ModelBatch modelBatch;
+	public Model shipModel;
+	public ModelInstance shipInstance;
 
 	// chat
 	Stage uiStage;
@@ -85,6 +88,16 @@ public class LibGDXExamples extends ApplicationAdapter {
 		cam3d.near = 0.1f;
 		cam3d.far = 1000f;
 		cam3d.update();
+
+		// load 3d model
+		AssetManager mgr = new AssetManager();
+		mgr.load("ship/ship.g3dj", Model.class);
+		mgr.finishLoading();
+
+		shipModel = mgr.get("ship/ship.g3dj");
+		shipInstance = new ModelInstance(shipModel);
+		shipInstance.transform.scl(5);
+		shipInstance.transform.translate(0.5f, 0.5f, 0);
 
 		// create an input multiplexer to use multiple input handler
 		// (1st person camera and our own UI input handler)
@@ -139,9 +152,11 @@ public class LibGDXExamples extends ApplicationAdapter {
 		// draw axes/grid
 		modelBatch.begin(cam3d);
 		modelBatch.render(axesInstance);
+		modelBatch.render(shipInstance);
 		modelBatch.end();
 
 		Debugger.printDebugInfo();
+		shipInstance.transform.rotate(0, 1, 0, 0.5f);
 	}
 
 	@Override
