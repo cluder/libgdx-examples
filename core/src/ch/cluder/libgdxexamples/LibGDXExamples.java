@@ -18,8 +18,12 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 
 import ch.cluder.libgdxexamples.input.UIInputController;
+import ch.cluder.libgdxexamples.ui.ChatInputListener;
 
 public class LibGDXExamples extends ApplicationAdapter {
 	SpriteBatch uiTextBatch;
@@ -39,9 +43,25 @@ public class LibGDXExamples extends ApplicationAdapter {
 	public ModelInstance axesInstance;
 	public ModelBatch modelBatch;
 
+	// chat
+	ChatInputListener chatListener;
+	TextField chatField;
+	TextArea chatArea;
+
 	@Override
 	public void create() {
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
+
+		// init chat listener and fields
+		Skin defaultSkin = new Skin(Gdx.files.internal("uiskin.json"));
+		chatField = new TextField("", defaultSkin);
+		chatField.setWidth(200);
+		chatField.setMessageText("type to chat");
+
+		chatArea = new TextArea("", defaultSkin);
+		chatArea.setWidth(200);
+		chatArea.setPrefRows(5);
+		chatArea.setHeight(chatArea.getPrefHeight());
 
 		modelBatch = new ModelBatch();
 
@@ -61,7 +81,7 @@ public class LibGDXExamples extends ApplicationAdapter {
 		InputMultiplexer inputMultiplexer = new InputMultiplexer();
 		inputController = new CameraInputController(cam3d);
 		inputMultiplexer.addProcessor(inputController);
-		inputMultiplexer.addProcessor(new UIInputController());
+		inputMultiplexer.addProcessor(new UIInputController(chatField, chatArea));
 
 		Gdx.input.setInputProcessor(inputMultiplexer);
 
@@ -70,6 +90,7 @@ public class LibGDXExamples extends ApplicationAdapter {
 
 		// debug axes / grid
 		createAxes();
+
 	}
 
 	@Override
@@ -97,11 +118,19 @@ public class LibGDXExamples extends ApplicationAdapter {
 		modelBatch.render(axesInstance);
 		modelBatch.end();
 
-		// draw text in upper left corner
+		// text (texture) in upper left corner
 		uiTextBatch.setProjectionMatrix(cam2d.combined);
 		uiTextBatch.begin();
 		int yPos = (int) (Gdx.app.getGraphics().getHeight() - uiText.getHeight());
 		uiTextBatch.draw(uiText, Gdx.app.getGraphics().getWidth() - uiText.getWidth(), yPos);
+
+		// chat field and area
+		yPos = (int) (Gdx.graphics.getHeight() * 0.15f);
+		chatField.setPosition(Gdx.graphics.getWidth() * 0.01f, yPos);
+		chatField.draw(uiTextBatch, 0.75f);
+
+		chatArea.setPosition(Gdx.graphics.getWidth() * 0.01f, yPos + chatField.getHeight());
+		chatArea.draw(uiTextBatch, 0.75f);
 		uiTextBatch.end();
 
 		Debugger.printDebugInfo();
@@ -111,6 +140,8 @@ public class LibGDXExamples extends ApplicationAdapter {
 	public void dispose() {
 		uiTextBatch.dispose();
 		uiText.dispose();
+		axesModel.dispose();
+		modelBatch.dispose();
 	}
 
 	/**
