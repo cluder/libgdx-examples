@@ -6,6 +6,9 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 
+import ch.cluder.libgdxexamples.ui.screens.MainMenuScreen;
+import ch.cluder.libgdxexamples.ui.screens.util.ScreenManager;
+
 public class UIInputController implements InputProcessor {
 
 	TextField chatField;
@@ -22,7 +25,7 @@ public class UIInputController implements InputProcessor {
 
 		switch (keycode) {
 		case Keys.ESCAPE:
-			Gdx.app.exit();
+			ScreenManager.getInstance().setScreen(new MainMenuScreen());
 			break;
 		case Keys.ENTER:
 			if (chatArea.getLines() > 5) {
