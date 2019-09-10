@@ -49,9 +49,9 @@ public abstract class BaseUIScreen extends Stage implements Screen {
 	}
 
 	protected TextButton addButton(String text, Skin defaultSkin, Table buttonTable) {
-		int buttonWidth = 150;
+		int buttonWidth = 200;
 		TextButton btn = new TextButton(text, defaultSkin);
-		buttonTable.add(btn).center().fillX().padTop(20).width(buttonWidth).height(50).row();
+		buttonTable.add(btn).center().fillX().padTop(20).width(buttonWidth).height(70);
 		return btn;
 	}
 

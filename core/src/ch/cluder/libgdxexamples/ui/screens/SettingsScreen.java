@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.Logger;
 
 import ch.cluder.libgdxexamples.Debugger;
 import ch.cluder.libgdxexamples.ui.screens.util.ScreenManager;
+import ch.cluder.libgdxexamples.util.ResourceManager;
 
 public class SettingsScreen extends BaseUIScreen {
 	SelectBox<String> resolutionDropDown;
@@ -27,7 +28,7 @@ public class SettingsScreen extends BaseUIScreen {
 
 		clear();
 		Gdx.app.setLogLevel(Logger.DEBUG);
-		Skin defaultSkin = new Skin(Gdx.files.internal("uiskin.json"));
+		Skin defaultSkin = ResourceManager.getSkin();
 
 		// button table
 		Table table = new Table(defaultSkin);

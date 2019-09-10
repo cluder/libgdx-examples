@@ -6,6 +6,8 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 
+import ch.cluder.libgdxexamples.net.NetworkClient;
+import ch.cluder.libgdxexamples.ui.screens.GameScreen;
 import ch.cluder.libgdxexamples.ui.screens.MainMenuScreen;
 import ch.cluder.libgdxexamples.ui.screens.util.ScreenManager;
 
@@ -13,15 +15,19 @@ public class UIInputController implements InputProcessor {
 
 	TextField chatField;
 	TextArea chatArea;
+	NetworkClient netClient;
+	GameScreen game;
 
-	public UIInputController(TextField chatField, TextArea chatArea) {
-		this.chatField = chatField;
-		this.chatArea = chatArea;
+	public UIInputController(GameScreen game) {
+		this.game = game;
+		this.chatField = game.chatField;
+		this.chatArea = game.chatArea;
+		this.netClient = game.netClient;
 	}
 
 	@Override
 	public boolean keyDown(int keycode) {
-		Gdx.app.debug("DBG", "Key down:" + keycode);
+//		Gdx.app.debug("DBG", "Key down:" + keycode);
 
 		switch (keycode) {
 		case Keys.ESCAPE:
@@ -29,11 +35,16 @@ public class UIInputController implements InputProcessor {
 			break;
 		case Keys.ENTER:
 			if (chatArea.getLines() > 5) {
+				// limit text in text area to 5 lines
 				String s = chatArea.getText().substring(chatArea.getText().indexOf('\n') + 1);
 				chatArea.setText(s);
 			}
-			chatArea.appendText(chatField.getText() + "\n");
+			String text = chatField.getText();
+			chatArea.appendText(game.playerName + ":" + text + "\n");
 			chatField.setText("");
+			if (netClient != null) {
+				netClient.sendChat(text);
+			}
 			break;
 		case Keys.FORWARD_DEL:
 			chatArea.setText("");
@@ -54,7 +65,7 @@ public class UIInputController implements InputProcessor {
 
 	@Override
 	public boolean keyTyped(char character) {
-		Gdx.app.debug("DBG", "Key typed:" + character);
+//		Gdx.app.debug("DBG", "Key typed:" + character);
 
 		switch (character) {
 		case '\b':

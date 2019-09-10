@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.Logger;
 
 import ch.cluder.libgdxexamples.Debugger;
 import ch.cluder.libgdxexamples.ui.screens.util.ScreenManager;
+import ch.cluder.libgdxexamples.util.ResourceManager;
 
 public class MainMenuScreen extends BaseUIScreen {
 
@@ -19,7 +20,7 @@ public class MainMenuScreen extends BaseUIScreen {
 		clear();
 
 		Gdx.app.setLogLevel(Logger.DEBUG);
-		Skin defaultSkin = new Skin(Gdx.files.internal("uiskin.json"));
+		Skin defaultSkin = ResourceManager.getSkin();
 
 		// button table
 		Table buttonTable = new Table(defaultSkin);
@@ -38,8 +39,21 @@ public class MainMenuScreen extends BaseUIScreen {
 			}
 		});
 
+		buttonTable.row();
+
+		btn = addButton("Multiplayer ...", defaultSkin, buttonTable);
+		btn.addListener(new InputListener() {
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+				ScreenManager.getInstance().setScreen(new MultiplayerScreen());
+				return false;
+			}
+		});
+
+		buttonTable.row();
+
 		// settings button
-		btn = addButton("Settings", defaultSkin, buttonTable);
+		btn = addButton("Settings ...", defaultSkin, buttonTable);
 		btn.addListener(new InputListener() {
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -47,6 +61,8 @@ public class MainMenuScreen extends BaseUIScreen {
 				return false;
 			}
 		});
+
+		buttonTable.row();
 
 		// exit button
 		btn = addButton("Exit", defaultSkin, buttonTable);

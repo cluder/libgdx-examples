@@ -17,6 +17,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -26,6 +27,9 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import ch.cluder.libgdxexamples.Debugger;
 import ch.cluder.libgdxexamples.input.UIInputController;
+import ch.cluder.libgdxexamples.net.NetwerkServer;
+import ch.cluder.libgdxexamples.net.NetworkClient;
+import ch.cluder.libgdxexamples.util.ResourceManager;
 
 public class GameScreen implements Screen {
 	// perspective 3d camera
@@ -44,14 +48,34 @@ public class GameScreen implements Screen {
 
 	// chat
 	Stage uiStage;
-	TextField chatField;
-	TextArea chatArea;
+	public TextField chatField;
+	public TextArea chatArea;
 
 	private Image uiTextureImage;
 	private InputMultiplexer inputMultiplexer;
 
+	boolean isServer = false;
+	NetwerkServer server;
+
+	public NetworkClient netClient;
+	public String playerName = "Player" + (int) (Math.random() * 10);
+
 	public GameScreen() {
 		create();
+	}
+
+	public GameScreen(boolean startServer) {
+		create();
+
+		isServer = true;
+		server = new NetwerkServer();
+		server.start();
+	}
+
+	public GameScreen(Socket clientSocket) {
+		this.netClient = new NetworkClient(clientSocket);
+		create();
+
 	}
 
 	private void create() {
@@ -64,7 +88,8 @@ public class GameScreen implements Screen {
 		uiStage = new Stage(new ScreenViewport());
 
 		// init chat listener and fields
-		Skin defaultSkin = new Skin(Gdx.files.internal("uiskin.json"));
+		Skin defaultSkin = ResourceManager.getSkin();
+
 		chatField = new TextField("", defaultSkin);
 		chatField.setWidth(200);
 		chatField.setMessageText("type to chat");
@@ -104,7 +129,7 @@ public class GameScreen implements Screen {
 		inputMultiplexer = new InputMultiplexer();
 		inputController = new CameraInputController(cam3d);
 		inputMultiplexer.addProcessor(inputController);
-		inputMultiplexer.addProcessor(new UIInputController(chatField, chatArea));
+		inputMultiplexer.addProcessor(new UIInputController(this));
 
 		Gdx.input.setInputProcessor(inputMultiplexer);
 
@@ -164,6 +189,9 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void hide() {
+		if (server != null) {
+			server.stop();
+		}
 		dispose();
 	}
 
