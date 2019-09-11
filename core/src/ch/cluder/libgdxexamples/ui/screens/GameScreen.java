@@ -3,6 +3,7 @@ package ch.cluder.libgdxexamples.ui.screens;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.Net.Protocol;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
@@ -70,11 +71,13 @@ public class GameScreen implements Screen {
 		isServer = true;
 		server = new NetwerkServer();
 		server.start();
+
+		netClient = new NetworkClient(Gdx.net.newClientSocket(Protocol.TCP, "localhost", 5555, null));
 	}
 
 	public GameScreen(Socket clientSocket) {
-		this.netClient = new NetworkClient(clientSocket);
 		create();
+		this.netClient = new NetworkClient(clientSocket);
 	}
 
 	private void create() {
@@ -152,6 +155,8 @@ public class GameScreen implements Screen {
 		uiStage.act();
 		uiStage.draw();
 
+		handleServerCommunication();
+
 		// draw axes/grid
 		modelBatch.begin(cam3d);
 		modelBatch.render(axesInstance);
@@ -160,6 +165,20 @@ public class GameScreen implements Screen {
 
 		Debugger.printDebugInfo();
 		shipInstance.transform.rotate(0, 1, 0, 0.5f);
+	}
+
+	private void handleServerCommunication() {
+		if (netClient == null) {
+			return;
+		}
+		String response = netClient.getServerResponse();
+		if (response == null) {
+			return;
+		}
+
+		Gdx.app.log("GameScreen", "adding chatline:" + response);
+		addChatLine("unknown player", response);
+
 	}
 
 	@Override
@@ -235,6 +254,12 @@ public class GameScreen implements Screen {
 		builder.line(0, 0, 0, 0, 0, 100);
 		axesModel = modelBuilder.end();
 		axesInstance = new ModelInstance(axesModel);
+	}
+
+	public String addChatLine(String name, String text) {
+		chatArea.appendText(name + ":" + text + "\n");
+		chatField.setText("");
+		return text;
 	}
 
 }

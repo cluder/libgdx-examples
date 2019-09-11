@@ -124,9 +124,10 @@ public class NetwerkServer implements Runnable {
 				continue;
 			}
 
-			Gdx.app.log("NetworkServer", "updateing client:" + s.getRemoteAddress());
+			Gdx.app.log("NetworkServer", "updating client:" + s.getRemoteAddress());
 			PrintWriter writer = new PrintWriter(s.getOutputStream());
 			writer.print(line);
+			writer.println();
 			writer.flush();
 		}
 	}

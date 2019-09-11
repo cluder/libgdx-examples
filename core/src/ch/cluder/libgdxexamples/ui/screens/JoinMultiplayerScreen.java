@@ -5,7 +5,6 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Net.Protocol;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.net.Socket;
-import com.badlogic.gdx.net.SocketHints;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -74,9 +73,7 @@ public class JoinMultiplayerScreen extends BaseUIScreen {
 				try {
 					Gdx.app.log("MP", "connecting ...");
 					setStatus(STATUS_CONNECTING);
-					SocketHints hints = new SocketHints();
-					hints.connectTimeout = 5000;
-					Socket clientSocket = Gdx.net.newClientSocket(Protocol.TCP, ipField.getText(), 5555, hints);
+					Socket clientSocket = Gdx.net.newClientSocket(Protocol.TCP, ipField.getText(), 5555, null);
 
 					Gdx.app.log("MP", "connected");
 					setStatus(STATUS_CONNECTED);
