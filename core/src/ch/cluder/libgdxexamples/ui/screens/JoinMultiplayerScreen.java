@@ -21,8 +21,9 @@ import ch.cluder.libgdxexamples.util.ResourceManager;
 
 public class JoinMultiplayerScreen extends BaseUIScreen {
 	String STATUS_NOT_CONNECTED = "not connected";
-	String CONNECTED = "connected";
-	String CONNECTING = "connecting ...";
+	String STATUS_CONNECTED = "connected";
+	String STATUS_CONNECTING = "connecting ...";
+	String STATUS_NO_SERVER = "no server found";
 
 	String status = "Idle ...";
 	TextField ipField;
@@ -72,20 +73,20 @@ public class JoinMultiplayerScreen extends BaseUIScreen {
 			public void clicked(InputEvent event, float x, float y) {
 				try {
 					Gdx.app.log("MP", "connecting ...");
-					setStatus(CONNECTING);
+					setStatus(STATUS_CONNECTING);
 					SocketHints hints = new SocketHints();
 					hints.connectTimeout = 5000;
 					Socket clientSocket = Gdx.net.newClientSocket(Protocol.TCP, ipField.getText(), 5555, hints);
 
 					Gdx.app.log("MP", "connected");
-					setStatus(CONNECTED);
+					setStatus(STATUS_CONNECTED);
 					GameScreen newGame = new GameScreen(clientSocket);
 					newGame.playerName = playerName;
 					ScreenManager.getInstance().setScreen(newGame);
 
 				} catch (Exception e) {
+					setStatus(STATUS_NO_SERVER);
 					Gdx.app.log("MP", "cannot connect ", e);
-					setStatus(STATUS_NOT_CONNECTED);
 				}
 
 			}

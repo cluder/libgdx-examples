@@ -58,7 +58,7 @@ public class GameScreen implements Screen {
 	NetwerkServer server;
 
 	public NetworkClient netClient;
-	public String playerName = "Player" + (int) (Math.random() * 10);
+	public String playerName = "Player";
 
 	public GameScreen() {
 		create();
@@ -75,7 +75,6 @@ public class GameScreen implements Screen {
 	public GameScreen(Socket clientSocket) {
 		this.netClient = new NetworkClient(clientSocket);
 		create();
-
 	}
 
 	private void create() {
