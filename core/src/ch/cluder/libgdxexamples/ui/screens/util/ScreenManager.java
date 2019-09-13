@@ -3,6 +3,8 @@ package ch.cluder.libgdxexamples.ui.screens.util;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 
+import ch.cluder.libgdxexamples.ui.screens.Screens;
+
 public class ScreenManager {
 
 	// Singleton: unique instance
@@ -29,7 +31,12 @@ public class ScreenManager {
 		this.game = game;
 	}
 
-	public void setScreen(Screen newScreen) {
-		game.setScreen(newScreen);
+	public void setScreen(Screens screenType) {
+		game.setScreen(screenType.get());
+	}
+
+	public void setScreen(Screen screen) {
+		game.setScreen(screen);
+
 	}
 }

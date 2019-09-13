@@ -28,10 +28,11 @@ public class JoinMultiplayerScreen extends BaseUIScreen {
 	TextField ipField;
 	Socket clientSocket;
 	private Label statusLabel;
-	String playerName;
 
-	public JoinMultiplayerScreen(String name) {
-		this.playerName = name;
+	public JoinMultiplayerScreen() {
+	}
+
+	public void setPlayerName(String playerName) {
 	}
 
 	@Override
@@ -61,7 +62,7 @@ public class JoinMultiplayerScreen extends BaseUIScreen {
 		backButton.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				ScreenManager.getInstance().setScreen(new MultiplayerScreen());
+				ScreenManager.getInstance().setScreen(Screens.MULTIPLAYER);
 			}
 		});
 		table.add(backButton).minWidth(150).minHeight(50).padTop(50);
@@ -71,14 +72,15 @@ public class JoinMultiplayerScreen extends BaseUIScreen {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
 				try {
+					// TODO client can connect multiple times (Game <-> Menu handling)
 					Gdx.app.log("MP", "connecting ...");
 					setStatus(STATUS_CONNECTING);
 					Socket clientSocket = Gdx.net.newClientSocket(Protocol.TCP, ipField.getText(), 5555, null);
 
 					Gdx.app.log("MP", "connected");
 					setStatus(STATUS_CONNECTED);
-					GameScreen newGame = new GameScreen(clientSocket);
-					newGame.playerName = playerName;
+					GameScreen newGame = (GameScreen) Screens.GAME.get();
+					newGame.setNetworkClient(clientSocket);
 					ScreenManager.getInstance().setScreen(newGame);
 
 				} catch (Exception e) {
@@ -127,12 +129,7 @@ public class JoinMultiplayerScreen extends BaseUIScreen {
 
 	@Override
 	public void hide() {
-		dispose();
-	}
-
-	@Override
-	public void dispose() {
-		super.dispose();
+//		dispose();
 	}
 
 	@Override
@@ -141,7 +138,7 @@ public class JoinMultiplayerScreen extends BaseUIScreen {
 
 		switch (keycode) {
 		case Keys.ESCAPE:
-			ScreenManager.getInstance().setScreen(new MainMenuScreen());
+			ScreenManager.getInstance().setScreen(Screens.MAIN_MENU);
 			break;
 		default:
 			break;

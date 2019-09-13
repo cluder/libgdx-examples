@@ -34,7 +34,7 @@ public class MainMenuScreen extends BaseUIScreen {
 		btn.addListener(new InputListener() {
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-				ScreenManager.getInstance().setScreen(new GameScreen());
+				ScreenManager.getInstance().setScreen(Screens.GAME);
 				return false;
 			}
 		});
@@ -45,7 +45,7 @@ public class MainMenuScreen extends BaseUIScreen {
 		btn.addListener(new InputListener() {
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-				ScreenManager.getInstance().setScreen(new MultiplayerScreen());
+				ScreenManager.getInstance().setScreen(Screens.MULTIPLAYER);
 				return false;
 			}
 		});
@@ -57,7 +57,7 @@ public class MainMenuScreen extends BaseUIScreen {
 		btn.addListener(new InputListener() {
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-				ScreenManager.getInstance().setScreen(new SettingsScreen());
+				ScreenManager.getInstance().setScreen(Screens.SETTINGS);
 				return false;
 			}
 		});
@@ -99,7 +99,7 @@ public class MainMenuScreen extends BaseUIScreen {
 
 	@Override
 	public void hide() {
-		dispose();
+//		dispose();
 	}
 
 	@Override

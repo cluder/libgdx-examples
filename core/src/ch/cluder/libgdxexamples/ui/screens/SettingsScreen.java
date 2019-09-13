@@ -72,7 +72,7 @@ public class SettingsScreen extends BaseUIScreen {
 		backButton.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				ScreenManager.getInstance().setScreen(new MainMenuScreen());
+				ScreenManager.getInstance().setScreen(Screens.MAIN_MENU);
 			}
 		});
 		table.add(backButton).minWidth(150).minHeight(50).padTop(50);
@@ -138,12 +138,7 @@ public class SettingsScreen extends BaseUIScreen {
 
 	@Override
 	public void hide() {
-		dispose();
-	}
-
-	@Override
-	public void dispose() {
-		super.dispose();
+//		dispose();
 	}
 
 	@Override
@@ -152,7 +147,7 @@ public class SettingsScreen extends BaseUIScreen {
 
 		switch (keycode) {
 		case Keys.ESCAPE:
-			ScreenManager.getInstance().setScreen(new MainMenuScreen());
+			ScreenManager.getInstance().setScreen(Screens.MAIN_MENU);
 			break;
 		default:
 			break;

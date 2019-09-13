@@ -48,9 +48,9 @@ public class MultiplayerScreen extends BaseUIScreen {
 		startMP.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				GameScreen newGame = new GameScreen(true);
-				newGame.playerName = nameField.getText();
-				ScreenManager.getInstance().setScreen(newGame);
+				GameScreen game = (GameScreen) Screens.GAME.get();
+				game.startNetworkServer();
+				ScreenManager.getInstance().setScreen(game);
 			}
 		});
 
@@ -62,7 +62,7 @@ public class MultiplayerScreen extends BaseUIScreen {
 		joinMP.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				ScreenManager.getInstance().setScreen(new JoinMultiplayerScreen(nameField.getText()));
+				ScreenManager.getInstance().setScreen(Screens.JOIN_MP);
 			}
 		});
 
@@ -93,12 +93,7 @@ public class MultiplayerScreen extends BaseUIScreen {
 
 	@Override
 	public void hide() {
-		dispose();
-	}
-
-	@Override
-	public void dispose() {
-		super.dispose();
+//		dispose();
 	}
 
 	@Override
@@ -107,7 +102,7 @@ public class MultiplayerScreen extends BaseUIScreen {
 
 		switch (keycode) {
 		case Keys.ESCAPE:
-			ScreenManager.getInstance().setScreen(new MainMenuScreen());
+			ScreenManager.getInstance().setScreen(Screens.MAIN_MENU);
 			break;
 		default:
 			break;

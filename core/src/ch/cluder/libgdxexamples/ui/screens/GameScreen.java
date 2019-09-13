@@ -58,26 +58,29 @@ public class GameScreen implements Screen {
 	boolean isServer = false;
 	NetwerkServer server;
 
-	public NetworkClient netClient;
-	public String playerName = "Player";
+	public NetworkClient networkClient;
 
 	public GameScreen() {
 		create();
 	}
 
-	public GameScreen(boolean startServer) {
-		create();
-
-		isServer = true;
-		server = new NetwerkServer();
-		server.start();
-
-		netClient = new NetworkClient(Gdx.net.newClientSocket(Protocol.TCP, "localhost", 5555, null));
-	}
-
 	public GameScreen(Socket clientSocket) {
 		create();
-		this.netClient = new NetworkClient(clientSocket);
+		this.networkClient = new NetworkClient(clientSocket);
+	}
+
+	public void startNetworkServer() {
+		if (isServer == false) {
+			isServer = true;
+			server = new NetwerkServer();
+			server.start();
+
+			networkClient = new NetworkClient(Gdx.net.newClientSocket(Protocol.TCP, "localhost", 5555, null));
+		}
+	}
+
+	public void setNetworkClient(Socket clientSocket) {
+		this.networkClient = new NetworkClient(clientSocket);
 	}
 
 	private void create() {
@@ -168,10 +171,10 @@ public class GameScreen implements Screen {
 	}
 
 	private void handleServerCommunication() {
-		if (netClient == null) {
+		if (networkClient == null) {
 			return;
 		}
-		String response = netClient.getServerResponse();
+		String response = networkClient.getServerResponse();
 		if (response == null) {
 			return;
 		}
@@ -207,14 +210,14 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void hide() {
-		if (server != null) {
-			server.stop();
-		}
-		dispose();
+//		dispose();
 	}
 
 	@Override
 	public void dispose() {
+		if (server != null) {
+			server.stop();
+		}
 		uiStage.dispose();
 		axesModel.dispose();
 		modelBatch.dispose();
