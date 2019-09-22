@@ -1,4 +1,4 @@
-package ch.cluder.libgdxexamples.ui.screens;
+package ch.clu.libgdxexamples.ui.screens;
 
 import java.util.LinkedHashSet;
 
@@ -15,9 +15,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Logger;
 
-import ch.cluder.libgdxexamples.Debugger;
-import ch.cluder.libgdxexamples.ui.screens.util.ScreenManager;
-import ch.cluder.libgdxexamples.util.ResourceManager;
+import ch.clu.libgdxexamples.ui.screens.util.ScreenManager;
+import ch.clu.libgdxexamples.util.Debugger;
+import ch.clu.libgdxexamples.util.ResourceManager;
 
 public class SettingsScreen extends BaseUIScreen {
 	SelectBox<String> resolutionDropDown;

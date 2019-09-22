@@ -1,4 +1,4 @@
-package ch.cluder.libgdxexamples.net;
+package ch.clu.libgdxexamples.net;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

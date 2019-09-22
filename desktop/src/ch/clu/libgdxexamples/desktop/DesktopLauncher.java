@@ -1,9 +1,9 @@
-package ch.cluder.libgdxexamples.desktop;
+package ch.clu.libgdxexamples.desktop;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 
-import ch.cluder.libgdxexamples.LibGDXExamples;
+import ch.clu.libgdxexamples.LibGDXExamples;
 
 public class DesktopLauncher {
 	public static void main(String[] arg) {

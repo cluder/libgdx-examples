@@ -1,4 +1,4 @@
-package ch.cluder.libgdxexamples.ui.screens;
+package ch.clu.libgdxexamples.ui.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -14,9 +14,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Logger;
 
-import ch.cluder.libgdxexamples.Debugger;
-import ch.cluder.libgdxexamples.ui.screens.util.ScreenManager;
-import ch.cluder.libgdxexamples.util.ResourceManager;
+import ch.clu.libgdxexamples.ui.screens.util.ScreenManager;
+import ch.clu.libgdxexamples.util.Debugger;
+import ch.clu.libgdxexamples.util.ResourceManager;
 
 public class JoinMultiplayerScreen extends BaseUIScreen {
 	String STATUS_NOT_CONNECTED = "not connected";
@@ -30,9 +30,6 @@ public class JoinMultiplayerScreen extends BaseUIScreen {
 	private Label statusLabel;
 
 	public JoinMultiplayerScreen() {
-	}
-
-	public void setPlayerName(String playerName) {
 	}
 
 	@Override

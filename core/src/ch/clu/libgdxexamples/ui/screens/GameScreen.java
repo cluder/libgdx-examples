@@ -1,4 +1,4 @@
-package ch.cluder.libgdxexamples.ui.screens;
+package ch.clu.libgdxexamples.ui.screens;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
@@ -25,12 +25,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.codedisaster.steamworks.SteamAPI;
 
-import ch.cluder.libgdxexamples.Debugger;
-import ch.cluder.libgdxexamples.input.UIInputController;
-import ch.cluder.libgdxexamples.net.NetwerkServer;
-import ch.cluder.libgdxexamples.net.NetworkClient;
-import ch.cluder.libgdxexamples.util.ResourceManager;
+import ch.clu.libgdxexamples.input.UIInputController;
+import ch.clu.libgdxexamples.net.NetwerkServer;
+import ch.clu.libgdxexamples.net.NetworkClient;
+import ch.clu.libgdxexamples.util.Debugger;
+import ch.clu.libgdxexamples.util.ResourceManager;
 
 public class GameScreen implements Screen {
 	// perspective 3d camera
@@ -151,6 +152,7 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void render(float delta) {
+		SteamAPI.runCallbacks();
 		// clear screen and paint a black background
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);

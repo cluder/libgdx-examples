@@ -1,4 +1,4 @@
-package ch.cluder.libgdxexamples.ui.screens;
+package ch.clu.libgdxexamples.ui.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.codedisaster.steamworks.SteamAPI;
 
 public abstract class BaseUIScreen extends Stage implements Screen {
 
@@ -24,7 +25,7 @@ public abstract class BaseUIScreen extends Stage implements Screen {
 
 	@Override
 	public void render(float delta) {
-
+		SteamAPI.runCallbacks();
 	}
 
 	@Override

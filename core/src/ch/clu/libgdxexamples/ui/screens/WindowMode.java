@@ -1,4 +1,4 @@
-package ch.cluder.libgdxexamples.ui.screens;
+package ch.clu.libgdxexamples.ui.screens;
 
 public enum WindowMode {
 	WINDOWED, BORDERLESS, FULLSCREEN;

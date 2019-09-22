@@ -1,9 +1,9 @@
-package ch.cluder.libgdxexamples.ui.screens.util;
+package ch.clu.libgdxexamples.ui.screens.util;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 
-import ch.cluder.libgdxexamples.ui.screens.Screens;
+import ch.clu.libgdxexamples.ui.screens.Screens;
 
 public class ScreenManager {
 

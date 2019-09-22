@@ -1,14 +1,14 @@
-package ch.cluder.libgdxexamples.input;
+package ch.clu.libgdxexamples.input;
 
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 
-import ch.cluder.libgdxexamples.GameData;
-import ch.cluder.libgdxexamples.ui.screens.GameScreen;
-import ch.cluder.libgdxexamples.ui.screens.Screens;
-import ch.cluder.libgdxexamples.ui.screens.util.ScreenManager;
+import ch.clu.libgdxexamples.data.GameData;
+import ch.clu.libgdxexamples.ui.screens.GameScreen;
+import ch.clu.libgdxexamples.ui.screens.Screens;
+import ch.clu.libgdxexamples.ui.screens.util.ScreenManager;
 
 public class UIInputController extends InputAdapter {
 

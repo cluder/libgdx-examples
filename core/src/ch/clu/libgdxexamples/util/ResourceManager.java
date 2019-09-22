@@ -1,4 +1,4 @@
-package ch.cluder.libgdxexamples.util;
+package ch.clu.libgdxexamples.util;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;

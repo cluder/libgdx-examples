@@ -1,4 +1,4 @@
-package ch.cluder.libgdxexamples.ui.screens;
+package ch.clu.libgdxexamples.ui.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -10,9 +10,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Logger;
 
-import ch.cluder.libgdxexamples.Debugger;
-import ch.cluder.libgdxexamples.ui.screens.util.ScreenManager;
-import ch.cluder.libgdxexamples.util.ResourceManager;
+import ch.clu.libgdxexamples.ui.screens.util.ScreenManager;
+import ch.clu.libgdxexamples.util.Debugger;
+import ch.clu.libgdxexamples.util.ResourceManager;
 
 public class MainMenuScreen extends BaseUIScreen {
 
@@ -78,6 +78,8 @@ public class MainMenuScreen extends BaseUIScreen {
 
 	@Override
 	public void render(float delta) {
+		super.render(delta);
+
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 

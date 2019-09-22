@@ -1,4 +1,4 @@
-package ch.cluder.libgdxexamples.ui.screens;
+package ch.clu.libgdxexamples.ui.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -12,9 +12,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Logger;
 
-import ch.cluder.libgdxexamples.Debugger;
-import ch.cluder.libgdxexamples.ui.screens.util.ScreenManager;
-import ch.cluder.libgdxexamples.util.ResourceManager;
+import ch.clu.libgdxexamples.data.GameData;
+import ch.clu.libgdxexamples.ui.screens.util.ScreenManager;
+import ch.clu.libgdxexamples.util.Debugger;
+import ch.clu.libgdxexamples.util.ResourceManager;
+import ch.clu.libgdxexamples.util.SteamHelper;
 
 public class MultiplayerScreen extends BaseUIScreen {
 	TextField nameField;
@@ -37,34 +39,53 @@ public class MultiplayerScreen extends BaseUIScreen {
 		table.setFillParent(true);
 		table.setSkin(defaultSkin);
 
-		table.add(new Label("Player", defaultSkin));
-		nameField = new TextField("Player", defaultSkin);
+		table.add(new Label("Name", defaultSkin));
+
+		String playerName = SteamHelper.get().getSteamFriends().getPersonaName();
+		nameField = new TextField(playerName, defaultSkin);
 		table.add(nameField);
 
 		table.row();
 
-		TextButton startMP = addButton("Start Multiplayer Server", defaultSkin, table);
-		table.getCell(startMP).colspan(2);
-		startMP.addListener(new ClickListener() {
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				GameScreen game = (GameScreen) Screens.GAME.get();
-				game.startNetworkServer();
-				ScreenManager.getInstance().setScreen(game);
-			}
-		});
+		{
+			TextButton btn = addButton("Start Multiplayer Server", defaultSkin, table);
+			table.getCell(btn).colspan(2);
+			btn.addListener(new ClickListener() {
+				@Override
+				public void clicked(InputEvent event, float x, float y) {
+					GameScreen game = (GameScreen) Screens.GAME.get();
+					game.startNetworkServer();
+					ScreenManager.getInstance().setScreen(game);
+				}
+			});
+		}
 
 		table.row();
 
-		TextButton joinMP = addButton("Join Multiplayer ...", defaultSkin, table);
-		table.getCell(joinMP).colspan(2);
+		{
+			TextButton btn = addButton("Join Multiplayer ...", defaultSkin, table);
+			table.getCell(btn).colspan(2);
 
-		joinMP.addListener(new ClickListener() {
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				ScreenManager.getInstance().setScreen(Screens.JOIN_MP);
-			}
-		});
+			btn.addListener(new ClickListener() {
+				@Override
+				public void clicked(InputEvent event, float x, float y) {
+					ScreenManager.getInstance().setScreen(Screens.JOIN_MP);
+				}
+			});
+		}
+		table.row();
+
+		{
+			TextButton btn = addButton("Back", defaultSkin, table);
+			btn.addListener(new ClickListener() {
+				@Override
+				public void clicked(InputEvent event, float x, float y) {
+					ScreenManager.getInstance().setScreen(Screens.MAIN_MENU);
+				}
+			});
+			table.getCell(btn).colspan(2);
+
+		}
 
 //		table.debug();
 
@@ -93,6 +114,7 @@ public class MultiplayerScreen extends BaseUIScreen {
 
 	@Override
 	public void hide() {
+		GameData.get().playerName = nameField.getText();
 //		dispose();
 	}
 
