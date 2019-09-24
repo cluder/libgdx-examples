@@ -10,6 +10,7 @@ public enum Screens {
 	SETTINGS, //
 	MULTIPLAYER, //
 	JOIN_MP, //
+	CREATE_STEAM_LOBBY, //
 	GAME; //
 
 	Map<Screens, Screen> screens = new HashMap<>();
@@ -39,6 +40,12 @@ public enum Screens {
 			screen = screens.get(this);
 			if (screen == null) {
 				screens.put(this, screen = new JoinMultiplayerScreen());
+			}
+			return screen;
+		case CREATE_STEAM_LOBBY:
+			screen = screens.get(this);
+			if (screen == null) {
+				screens.put(this, screen = new CreateSteamLobbyScreen());
 			}
 			return screen;
 		case GAME:

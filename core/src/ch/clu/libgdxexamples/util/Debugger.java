@@ -4,11 +4,15 @@ import com.badlogic.gdx.Gdx;
 
 public class Debugger {
 	static long lastUpdate = System.currentTimeMillis();
+	static boolean enabled = false;
 
 	/**
 	 * Prints the heap usage at a specific interval.
 	 */
 	public static void printDebugInfo() {
+		if (!enabled) {
+			return;
+		}
 		if (lastUpdate + 10000 < System.currentTimeMillis()) {
 			long javaHeap = Gdx.app.getJavaHeap();
 			long nativeHeap = Gdx.app.getNativeHeap();

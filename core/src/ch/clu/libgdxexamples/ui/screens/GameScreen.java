@@ -3,7 +3,6 @@ package ch.clu.libgdxexamples.ui.screens;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.Net.Protocol;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
@@ -28,8 +27,6 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.codedisaster.steamworks.SteamAPI;
 
 import ch.clu.libgdxexamples.input.UIInputController;
-import ch.clu.libgdxexamples.net.NetwerkServer;
-import ch.clu.libgdxexamples.net.NetworkClient;
 import ch.clu.libgdxexamples.util.Debugger;
 import ch.clu.libgdxexamples.util.ResourceManager;
 
@@ -57,9 +54,6 @@ public class GameScreen implements Screen {
 	private InputMultiplexer inputMultiplexer;
 
 	boolean isServer = false;
-	NetwerkServer server;
-
-	public NetworkClient networkClient;
 
 	public GameScreen() {
 		create();
@@ -67,21 +61,13 @@ public class GameScreen implements Screen {
 
 	public GameScreen(Socket clientSocket) {
 		create();
-		this.networkClient = new NetworkClient(clientSocket);
 	}
 
 	public void startNetworkServer() {
 		if (isServer == false) {
 			isServer = true;
-			server = new NetwerkServer();
-			server.start();
 
-			networkClient = new NetworkClient(Gdx.net.newClientSocket(Protocol.TCP, "localhost", 5555, null));
 		}
-	}
-
-	public void setNetworkClient(Socket clientSocket) {
-		this.networkClient = new NetworkClient(clientSocket);
 	}
 
 	private void create() {
@@ -152,15 +138,15 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void render(float delta) {
+
 		SteamAPI.runCallbacks();
+
 		// clear screen and paint a black background
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
 		uiStage.act();
 		uiStage.draw();
-
-		handleServerCommunication();
 
 		// draw axes/grid
 		modelBatch.begin(cam3d);
@@ -170,20 +156,6 @@ public class GameScreen implements Screen {
 
 		Debugger.printDebugInfo();
 		shipInstance.transform.rotate(0, 1, 0, 0.5f);
-	}
-
-	private void handleServerCommunication() {
-		if (networkClient == null) {
-			return;
-		}
-		String response = networkClient.getServerResponse();
-		if (response == null) {
-			return;
-		}
-
-		Gdx.app.log("GameScreen", "adding chatline:" + response);
-		addChatLine("unknown player", response);
-
 	}
 
 	@Override
@@ -217,9 +189,7 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void dispose() {
-		if (server != null) {
-			server.stop();
-		}
+
 		uiStage.dispose();
 		axesModel.dispose();
 		modelBatch.dispose();

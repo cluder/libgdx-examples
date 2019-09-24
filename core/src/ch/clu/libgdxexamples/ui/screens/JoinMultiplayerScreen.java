@@ -1,22 +1,17 @@
 package ch.clu.libgdxexamples.ui.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Net.Protocol;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Logger;
 
-import ch.clu.libgdxexamples.ui.screens.util.ScreenManager;
-import ch.clu.libgdxexamples.util.Debugger;
-import ch.clu.libgdxexamples.util.ResourceManager;
+import ch.clu.libgdxexamples.util.ScreenManager;
 
 public class JoinMultiplayerScreen extends BaseUIScreen {
 	String STATUS_NOT_CONNECTED = "not connected";
@@ -33,38 +28,42 @@ public class JoinMultiplayerScreen extends BaseUIScreen {
 	}
 
 	@Override
+	protected Screens getPreviousScreen() {
+		return Screens.MULTIPLAYER;
+	}
+
+	@Override
 	protected void create() {
 
 		clear();
 		Gdx.app.setLogLevel(Logger.DEBUG);
-		Skin defaultSkin = ResourceManager.getSkin();
 
 		// button table
-		Table table = new Table(defaultSkin);
+		Table table = new Table(skin);
 		addActor(table);
 
 		table.setFillParent(true);
-		table.setSkin(defaultSkin);
+		table.setSkin(skin);
 
-		Label ipLabel = new Label("Server IP", defaultSkin);
+		Label ipLabel = new Label("Server IP", skin);
 		table.add(ipLabel);
 
-		ipField = new TextField("<IP>", defaultSkin);
+		ipField = new TextField("<IP>", skin);
 		ipField.setText("localhost");
 		table.add(ipField);
 
 		table.row();
 
-		TextButton backButton = new TextButton("Back", defaultSkin);
+		TextButton backButton = new TextButton("Back", skin);
 		backButton.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				ScreenManager.getInstance().setScreen(Screens.MULTIPLAYER);
+				ScreenManager.getInstance().setScreen(getPreviousScreen());
 			}
 		});
 		table.add(backButton).minWidth(150).minHeight(50).padTop(50);
 
-		TextButton applyButton = new TextButton("Connect", defaultSkin);
+		TextButton applyButton = new TextButton("Connect", skin);
 		applyButton.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
@@ -76,9 +75,7 @@ public class JoinMultiplayerScreen extends BaseUIScreen {
 
 					Gdx.app.log("MP", "connected");
 					setStatus(STATUS_CONNECTED);
-					GameScreen newGame = (GameScreen) Screens.GAME.get();
-					newGame.setNetworkClient(clientSocket);
-					ScreenManager.getInstance().setScreen(newGame);
+					ScreenManager.getInstance().setScreen(Screens.GAME);
 
 				} catch (Exception e) {
 					setStatus(STATUS_NO_SERVER);
@@ -91,7 +88,7 @@ public class JoinMultiplayerScreen extends BaseUIScreen {
 
 		table.row();
 
-		statusLabel = new Label("Status: " + status, defaultSkin);
+		statusLabel = new Label("Status: " + status, skin);
 		table.add(statusLabel);
 
 		setStatus(STATUS_NOT_CONNECTED);
@@ -105,13 +102,8 @@ public class JoinMultiplayerScreen extends BaseUIScreen {
 
 	@Override
 	public void render(float delta) {
-		Gdx.gl.glClearColor(0, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		super.render(delta);
 
-		act();
-		draw();
-
-		Debugger.printDebugInfo();
 	}
 
 	@Override
@@ -129,17 +121,4 @@ public class JoinMultiplayerScreen extends BaseUIScreen {
 //		dispose();
 	}
 
-	@Override
-	public boolean keyDown(int keycode) {
-		Gdx.app.debug("DBG", "Key down:" + keycode);
-
-		switch (keycode) {
-		case Keys.ESCAPE:
-			ScreenManager.getInstance().setScreen(Screens.MAIN_MENU);
-			break;
-		default:
-			break;
-		}
-		return false;
-	}
 }

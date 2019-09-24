@@ -8,7 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import ch.clu.libgdxexamples.data.GameData;
 import ch.clu.libgdxexamples.ui.screens.GameScreen;
 import ch.clu.libgdxexamples.ui.screens.Screens;
-import ch.clu.libgdxexamples.ui.screens.util.ScreenManager;
+import ch.clu.libgdxexamples.util.ScreenManager;
 
 public class UIInputController extends InputAdapter {
 
@@ -36,9 +36,6 @@ public class UIInputController extends InputAdapter {
 
 			String text = game.addChatLine(GameData.get().playerName, game.chatField.getText());
 
-			if (game.networkClient != null) {
-				game.networkClient.sendChat(text);
-			}
 			break;
 		case Keys.FORWARD_DEL:
 			chatArea.setText("");

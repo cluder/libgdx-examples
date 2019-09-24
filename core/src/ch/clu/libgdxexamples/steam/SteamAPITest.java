@@ -1,9 +1,7 @@
-package ch.clu.libgdxexamples;
+package ch.clu.libgdxexamples.steam;
 
 import com.codedisaster.steamworks.SteamAPI;
 import com.codedisaster.steamworks.SteamApps;
-
-import ch.clu.libgdxexamples.util.SteamHelper;
 
 public class SteamAPITest {
 

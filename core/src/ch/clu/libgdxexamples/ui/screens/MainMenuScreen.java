@@ -2,35 +2,33 @@ package ch.clu.libgdxexamples.ui.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Logger;
 
-import ch.clu.libgdxexamples.ui.screens.util.ScreenManager;
-import ch.clu.libgdxexamples.util.Debugger;
-import ch.clu.libgdxexamples.util.ResourceManager;
+import ch.clu.libgdxexamples.util.ScreenManager;
 
 public class MainMenuScreen extends BaseUIScreen {
+
+	@Override
+	protected Screens getPreviousScreen() {
+		return null;
+	}
 
 	protected void create() {
 		clear();
 
 		Gdx.app.setLogLevel(Logger.DEBUG);
-		Skin defaultSkin = ResourceManager.getSkin();
 
 		// button table
-		Table buttonTable = new Table(defaultSkin);
+		Table buttonTable = new Table(skin);
 		buttonTable.setFillParent(true);
-
-		// add table to stage
 		addActor(buttonTable);
 
 		// start button
-		TextButton btn = addButton("Start", defaultSkin, buttonTable);
+		TextButton btn = addButton("Start", skin, buttonTable);
 		btn.addListener(new InputListener() {
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -41,7 +39,7 @@ public class MainMenuScreen extends BaseUIScreen {
 
 		buttonTable.row();
 
-		btn = addButton("Multiplayer ...", defaultSkin, buttonTable);
+		btn = addButton("Multiplayer ...", skin, buttonTable);
 		btn.addListener(new InputListener() {
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -53,7 +51,7 @@ public class MainMenuScreen extends BaseUIScreen {
 		buttonTable.row();
 
 		// settings button
-		btn = addButton("Settings ...", defaultSkin, buttonTable);
+		btn = addButton("Settings ...", skin, buttonTable);
 		btn.addListener(new InputListener() {
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -65,7 +63,7 @@ public class MainMenuScreen extends BaseUIScreen {
 		buttonTable.row();
 
 		// exit button
-		btn = addButton("Exit", defaultSkin, buttonTable);
+		btn = addButton("Exit", skin, buttonTable);
 		btn.addListener(new InputListener() {
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -80,13 +78,6 @@ public class MainMenuScreen extends BaseUIScreen {
 	public void render(float delta) {
 		super.render(delta);
 
-		Gdx.gl.glClearColor(0, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-		act();
-		draw();
-
-		Debugger.printDebugInfo();
 	}
 
 	@Override
@@ -106,8 +97,6 @@ public class MainMenuScreen extends BaseUIScreen {
 
 	@Override
 	public boolean keyDown(int keycode) {
-		Gdx.app.debug("DBG", "Key down:" + keycode);
-
 		switch (keycode) {
 		case Keys.ESCAPE:
 			Gdx.app.exit();

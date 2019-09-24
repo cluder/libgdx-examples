@@ -1,4 +1,4 @@
-package ch.clu.libgdxexamples.ui.screens.util;
+package ch.clu.libgdxexamples.util;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
@@ -32,7 +32,9 @@ public class ScreenManager {
 	}
 
 	public void setScreen(Screens screenType) {
-		game.setScreen(screenType.get());
+		if (screenType != null) {
+			game.setScreen(screenType.get());
+		}
 	}
 
 	public void setScreen(Screen screen) {
