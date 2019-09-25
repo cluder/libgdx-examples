@@ -3,7 +3,7 @@ package ch.clu.libgdxexamples.util;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 
-import ch.clu.libgdxexamples.ui.screens.Screens;
+import ch.clu.libgdxexamples.screens.util.Screens;
 
 public class ScreenManager {
 

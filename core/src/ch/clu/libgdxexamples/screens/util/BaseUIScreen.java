@@ -1,4 +1,4 @@
-package ch.clu.libgdxexamples.ui.screens;
+package ch.clu.libgdxexamples.screens.util;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;

@@ -1,7 +1,6 @@
-package ch.clu.libgdxexamples.ui.screens;
+package ch.clu.libgdxexamples.screens.menu;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Net.Protocol;
 import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -11,6 +10,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Logger;
 
+import ch.clu.libgdxexamples.screens.util.BaseUIScreen;
+import ch.clu.libgdxexamples.screens.util.Screens;
 import ch.clu.libgdxexamples.util.ScreenManager;
 
 public class JoinMultiplayerScreen extends BaseUIScreen {
@@ -67,20 +68,20 @@ public class JoinMultiplayerScreen extends BaseUIScreen {
 		applyButton.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				try {
-					// TODO client can connect multiple times (Game <-> Menu handling)
-					Gdx.app.log("MP", "connecting ...");
-					setStatus(STATUS_CONNECTING);
-					Socket clientSocket = Gdx.net.newClientSocket(Protocol.TCP, ipField.getText(), 5555, null);
-
-					Gdx.app.log("MP", "connected");
-					setStatus(STATUS_CONNECTED);
-					ScreenManager.getInstance().setScreen(Screens.GAME);
-
-				} catch (Exception e) {
-					setStatus(STATUS_NO_SERVER);
-					Gdx.app.log("MP", "cannot connect ", e);
-				}
+//				try {
+//					// TODO client can connect multiple times (Game <-> Menu handling)
+//					Gdx.app.log("MP", "connecting ...");
+//					setStatus(STATUS_CONNECTING);
+//					Socket clientSocket = Gdx.net.newClientSocket(Protocol.TCP, ipField.getText(), 5555, null);
+//
+//					Gdx.app.log("MP", "connected");
+//					setStatus(STATUS_CONNECTED);
+//					ScreenManager.getInstance().setScreen(Screens.GAME);
+//
+//				} catch (Exception e) {
+//					setStatus(STATUS_NO_SERVER);
+//					Gdx.app.log("MP", "cannot connect ", e);
+//				}
 
 			}
 		});

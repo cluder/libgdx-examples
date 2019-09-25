@@ -1,4 +1,4 @@
-package ch.clu.libgdxexamples.ui.screens;
+package ch.clu.libgdxexamples.screens.game;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;

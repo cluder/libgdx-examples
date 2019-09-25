@@ -1,4 +1,4 @@
-package ch.clu.libgdxexamples.ui.screens;
+package ch.clu.libgdxexamples.screens.menu;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -10,6 +10,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Logger;
 
 import ch.clu.libgdxexamples.data.GameData;
+import ch.clu.libgdxexamples.screens.game.GameScreen;
+import ch.clu.libgdxexamples.screens.util.BaseUIScreen;
+import ch.clu.libgdxexamples.screens.util.Screens;
 import ch.clu.libgdxexamples.steam.SteamHelper;
 import ch.clu.libgdxexamples.util.ScreenManager;
 

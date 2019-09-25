@@ -1,9 +1,16 @@
-package ch.clu.libgdxexamples.ui.screens;
+package ch.clu.libgdxexamples.screens.util;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import com.badlogic.gdx.Screen;
+
+import ch.clu.libgdxexamples.screens.game.GameScreen;
+import ch.clu.libgdxexamples.screens.menu.CreateSteamLobbyScreen;
+import ch.clu.libgdxexamples.screens.menu.JoinMultiplayerScreen;
+import ch.clu.libgdxexamples.screens.menu.MainMenuScreen;
+import ch.clu.libgdxexamples.screens.menu.MultiplayerScreen;
+import ch.clu.libgdxexamples.screens.menu.SettingsScreen;
 
 public enum Screens {
 	MAIN_MENU, //

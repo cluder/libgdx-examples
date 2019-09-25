@@ -2,7 +2,10 @@ package ch.clu.libgdxexamples.steam;
 
 import static java.lang.String.format;
 
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Observable;
 
 import com.badlogic.gdx.Gdx;
@@ -14,6 +17,7 @@ import com.codedisaster.steamworks.SteamFriends.PersonaChange;
 import com.codedisaster.steamworks.SteamFriendsCallback;
 import com.codedisaster.steamworks.SteamID;
 import com.codedisaster.steamworks.SteamMatchmaking;
+import com.codedisaster.steamworks.SteamMatchmaking.ChatEntry;
 import com.codedisaster.steamworks.SteamMatchmaking.ChatEntryType;
 import com.codedisaster.steamworks.SteamMatchmaking.ChatMemberStateChange;
 import com.codedisaster.steamworks.SteamMatchmaking.ChatRoomEnterResponse;
@@ -23,6 +27,10 @@ import com.codedisaster.steamworks.SteamServerListRequest;
 import com.codedisaster.steamworks.SteamUserCallback;
 import com.codedisaster.steamworks.SteamUtils;
 import com.codedisaster.steamworks.SteamUtilsCallback;
+
+import ch.clu.libgdxexamples.steam.data.LobbyData;
+import ch.clu.libgdxexamples.steam.data.LobbyDataList;
+import ch.clu.libgdxexamples.steam.data.LobbyMember;
 
 public class SteamHelper extends Observable
 		implements SteamUtilsCallback, SteamMatchmakingCallback, SteamUserCallback, SteamFriendsCallback {
@@ -42,12 +50,12 @@ public class SteamHelper extends Observable
 	private SteamUtils steamUtils;
 
 	// steam members
-	private SteamID steamIDLobby;
+	private SteamID currentLobbyId;
 
 	SteamServerListRequest r = null;
 
 	// simplified data structures
-	ArrayList<LobbyData> lobbyList = new ArrayList<>();
+	LobbyDataList lobbyDataList = new LobbyDataList();
 
 	private SteamHelper() {
 	}
@@ -94,29 +102,30 @@ public class SteamHelper extends Observable
 		return smm;
 	}
 
-	public ArrayList<LobbyData> getLobbyList() {
-		return lobbyList;
+	public LobbyDataList getLobbyList() {
+		return lobbyDataList;
 	}
 
 	/**
 	 * @return current steam lobby ID, can be null.
 	 */
 	public SteamID getSteamIDLobby() {
-		return steamIDLobby;
+		return currentLobbyId;
 	}
 
 	/**
 	 * Leaves the current lobby.
 	 */
 	public void leaveLobby() {
-		if (steamIDLobby != null) {
-			smm.leaveLobby(steamIDLobby);
-			steamIDLobby = null;
+		if (currentLobbyId != null) {
+			smm.leaveLobby(currentLobbyId);
+			currentLobbyId = null;
 		}
 	}
 
 	@Override
 	public void onSteamShutdown() {
+		Gdx.app.log(tag, "onSteamShutdown");
 	}
 
 	// SteamUserCallback
@@ -141,7 +150,17 @@ public class SteamHelper extends Observable
 
 	@Override
 	public void onLobbyChatMessage(SteamID steamIDLobby, SteamID steamIDUser, ChatEntryType entryType, int chatID) {
-		Gdx.app.log(tag, format("onLobbyChatMessage %s %s %s %s", steamIDLobby, steamIDUser, entryType, chatID));
+		ChatEntry chatEntry = new ChatEntry();
+		ByteBuffer bb = ByteBuffer.allocateDirect(100);
+		try {
+			smm.getLobbyChatEntry(steamIDLobby, chatID, chatEntry, bb);
+		} catch (SteamException e) {
+			Gdx.app.log(tag, "error during chat message handling", e);
+		}
+
+		CharBuffer asCharBuffer = bb.asCharBuffer();
+		Gdx.app.log(tag, format("onLobbyChatMessage %s %s %s %s %s", steamIDLobby, steamIDUser, entryType.name(),
+				chatID, asCharBuffer.toString()));
 
 	}
 
@@ -167,8 +186,13 @@ public class SteamHelper extends Observable
 	@Override
 	public void onLobbyEnter(SteamID steamIDLobby, int chatPermissions, boolean blocked,
 			ChatRoomEnterResponse response) {
-		Gdx.app.log(tag, format("onLobbyEnter"));
 
+		LobbyData lobbyData = gatherLobbyData(steamIDLobby);
+		Gdx.app.log(tag, format("onLobbyEnter: %s members:%s", response, Arrays.toString(lobbyData.members.toArray())));
+
+		// notify observers about lobby join
+		setChanged();
+		notifyObservers(lobbyData);
 	}
 
 	@Override
@@ -181,7 +205,11 @@ public class SteamHelper extends Observable
 	@Override
 	public void onLobbyChatUpdate(SteamID steamIDLobby, SteamID steamIDUserChanged, SteamID steamIDMakingChange,
 			ChatMemberStateChange stateChange) {
-		Gdx.app.log(tag, format("onLobbyChatUpdate: %s", steamIDLobby));
+		String steamIDUserChangedName = steamFriends.getFriendPersonaName(steamIDUserChanged);
+		String userMakingChangeName = steamFriends.getFriendPersonaName(steamIDMakingChange);
+
+		Gdx.app.log(tag, format("onLobbyChatUpdate: %s %s steamIDUserChangedName=%s, userMakingChangeName=%s ",
+				steamIDLobby, stateChange, steamIDUserChangedName, userMakingChangeName));
 
 	}
 
@@ -189,30 +217,42 @@ public class SteamHelper extends Observable
 	public void onLobbyMatchList(int lobbiesMatching) {
 		Gdx.app.log(tag, "onLobbyMatchList:" + lobbiesMatching);
 
-		lobbyList = new ArrayList<>();
+		lobbyDataList.lobbyList = new ArrayList<>();
 
 		for (int i = 0; i < lobbiesMatching; i++) {
 			// get lobby infos
 			SteamID lobbyID = smm.getLobbyByIndex(i);
-			int lobbyDataCount = smm.getLobbyDataCount(steamIDLobby);
-			String lobbyName = smm.getLobbyData(lobbyID, LOBBY_KEY_NAME);
-			int numLobbyMembers = smm.getNumLobbyMembers(steamIDLobby);
+			LobbyData data = gatherLobbyData(lobbyID);
 
-			Gdx.app.log(tag, format("  lobby ID/Name:%s/%s member#:%s data#:%s", lobbyID, lobbyName, numLobbyMembers,
-					lobbyDataCount));
-
-			// add to simple data list
-			LobbyData data = new LobbyData();
-			data.lobbyID = lobbyID;
-			data.name = (lobbyName != null && !lobbyName.isEmpty()) ? lobbyName : lobbyID.toString();
-			data.numMembers = numLobbyMembers;
-			lobbyList.add(data);
-
+			lobbyDataList.lobbyList.add(data);
+			Gdx.app.log(tag, format("  lobby ID/Name:%s/%s member#:%s", data.lobbyID, data.name, data.numMembers));
 			// notify interested observers
 			setChanged();
-			notifyObservers(lobbyList);
+			notifyObservers(lobbyDataList);
+		}
+	}
+
+	private LobbyData gatherLobbyData(SteamID lobbyID) {
+		LobbyData data = new LobbyData();
+		int lobbyDataCount = smm.getLobbyDataCount(lobbyID);
+		String lobbyName = smm.getLobbyData(lobbyID, LOBBY_KEY_NAME);
+		int numLobbyMembers = smm.getNumLobbyMembers(lobbyID);
+
+		for (int i = 0; i < numLobbyMembers; i++) {
+			SteamID lobbyMember = smm.getLobbyMemberByIndex(lobbyID, i);
+			String friendPersonaName = steamFriends.getFriendPersonaName(lobbyMember);
+
+			LobbyMember member = new LobbyMember();
+			member.steamID = lobbyMember;
+			member.name = friendPersonaName;
+			data.members.add(member);
 		}
 
+		data.lobbyID = lobbyID;
+		data.name = (lobbyName != null && !lobbyName.isEmpty()) ? lobbyName : lobbyID.toString();
+		data.numMembers = numLobbyMembers;
+		data.lobbyDataCount = lobbyDataCount;
+		return data;
 	}
 
 	@Override
@@ -234,7 +274,7 @@ public class SteamHelper extends Observable
 
 		smm.setLobbyData(steamIDLobby, LOBBY_KEY_NAME, lobbyName);
 
-		this.steamIDLobby = steamIDLobby;
+		this.currentLobbyId = steamIDLobby;
 
 	}
 
@@ -252,7 +292,7 @@ public class SteamHelper extends Observable
 
 	@Override
 	public void onPersonaStateChange(SteamID steamID, PersonaChange change) {
-		Gdx.app.log(tag, "onPersonaStateChange");
+		Gdx.app.log(tag, format("onPersonaStateChange: %s", change.name()));
 
 	}
 
@@ -270,25 +310,25 @@ public class SteamHelper extends Observable
 
 	@Override
 	public void onAvatarImageLoaded(SteamID steamID, int image, int width, int height) {
-		Gdx.app.log(tag, "onAvatarImageLoaded: " + steamIDLobby);
+		Gdx.app.log(tag, "onAvatarImageLoaded: " + currentLobbyId);
 
 	}
 
 	@Override
 	public void onFriendRichPresenceUpdate(SteamID steamIDFriend, int appID) {
-		Gdx.app.log(tag, "onFriendRichPresenceUpdate: " + steamIDLobby);
+		Gdx.app.log(tag, "onFriendRichPresenceUpdate: " + currentLobbyId);
 
 	}
 
 	@Override
 	public void onGameRichPresenceJoinRequested(SteamID steamIDFriend, String connect) {
-		Gdx.app.log(tag, "onGameRichPresenceJoinRequested: " + steamIDLobby);
+		Gdx.app.log(tag, "onGameRichPresenceJoinRequested: " + currentLobbyId);
 
 	}
 
 	@Override
 	public void onGameServerChangeRequested(String server, String password) {
-		Gdx.app.log(tag, "onGameServerChangeRequested: " + steamIDLobby);
+		Gdx.app.log(tag, "onGameServerChangeRequested: " + currentLobbyId);
 
 	}
 

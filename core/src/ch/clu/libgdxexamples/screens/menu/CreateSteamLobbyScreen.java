@@ -1,4 +1,4 @@
-package ch.clu.libgdxexamples.ui.screens;
+package ch.clu.libgdxexamples.screens.menu;
 
 import java.util.List;
 import java.util.Observable;
@@ -13,11 +13,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.codedisaster.steamworks.SteamID;
 import com.codedisaster.steamworks.SteamMatchmaking.LobbyComparison;
 import com.codedisaster.steamworks.SteamMatchmaking.LobbyType;
 
-import ch.clu.libgdxexamples.steam.LobbyData;
+import ch.clu.libgdxexamples.screens.util.BaseUIScreen;
+import ch.clu.libgdxexamples.screens.util.Screens;
 import ch.clu.libgdxexamples.steam.SteamHelper;
+import ch.clu.libgdxexamples.steam.data.LobbyData;
+import ch.clu.libgdxexamples.steam.data.LobbyDataList;
 
 public class CreateSteamLobbyScreen extends BaseUIScreen implements Observer {
 
@@ -25,8 +29,9 @@ public class CreateSteamLobbyScreen extends BaseUIScreen implements Observer {
 	SteamHelper steam;
 
 	// ui elements
-	Label lobbyLabel;
-	Table lobbyTable;
+	Table lobbyListTable;
+	Label currentLobbyLabel;
+	Table currentLobbyTable;
 
 	public CreateSteamLobbyScreen() {
 		steam = SteamHelper.get();
@@ -50,18 +55,15 @@ public class CreateSteamLobbyScreen extends BaseUIScreen implements Observer {
 		VerticalGroup mainGroup = new VerticalGroup();
 		mainGroup.setFillParent(true);
 		mainGroup.align(Align.center);
-		mainGroup.space(15);
+		mainGroup.space(5);
 
 		addActor(mainGroup);
 
-		Label title = new Label("Steam Lobbies", skin);
+		Label title = new Label("Steam Lobby List", skin);
 		mainGroup.addActor(title);
 
-		lobbyTable = new Table(skin);
-		mainGroup.addActor(lobbyTable);
-
-		lobbyLabel = new Label("Lobby:", skin);
-//		lobbyTable.add(lobbyLabel);
+		lobbyListTable = new Table(skin);
+		mainGroup.addActor(lobbyListTable);
 
 		HorizontalGroup buttonGroup = new HorizontalGroup();
 		mainGroup.addActor(buttonGroup);
@@ -83,10 +85,21 @@ public class CreateSteamLobbyScreen extends BaseUIScreen implements Observer {
 				refreshLobbys();
 			}
 		});
-		buttonGroup.padTop(10);
+		buttonGroup.padTop(5);
 		buttonGroup.addActor(refreshLobbysButton);
 
+		// -------------------------------------------
+		// current lobby
+		currentLobbyLabel = new Label("Current Lobby: none", skin);
+		mainGroup.addActor(currentLobbyLabel);
+
+		currentLobbyTable = new Table(skin);
+
 		setDebugAll(true);
+	}
+
+	private void updateCurrentLobby() {
+
 	}
 
 	protected void createLobby() {
@@ -99,13 +112,13 @@ public class CreateSteamLobbyScreen extends BaseUIScreen implements Observer {
 	/**
 	 * Trigger lobby list refresh (max 100 results)
 	 * 
-	 * @param lobbyTable
+	 * @param lobbyListTable
 	 */
 	private void refreshLobbys() {
 		steam.getSmm().addRequestLobbyListStringFilter(SteamHelper.LOBBY_KEY_MAGIC, SteamHelper.LOBBY_VALUE_MAGIC,
 				LobbyComparison.Equal);
+		steam.getSmm().addRequestLobbyListResultCountFilter(5);
 
-		steam.getSmm().addRequestLobbyListResultCountFilter(100);
 		steam.getSmm().requestLobbyList();
 
 	}
@@ -122,17 +135,34 @@ public class CreateSteamLobbyScreen extends BaseUIScreen implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
+		// lobby joined
+		if (arg instanceof LobbyData) {
+			LobbyData data = (LobbyData) arg;
+			currentLobbyLabel.setText(data.name);
+		}
+
 		// got updated lobby list
-		if (arg instanceof List<?>) {
-			@SuppressWarnings("unchecked")
-			List<LobbyData> datas = (List<LobbyData>) arg;
-			lobbyTable.clearChildren();
+		if (arg instanceof LobbyDataList) {
+			LobbyDataList lobbyDataList = (LobbyDataList) arg;
+			List<LobbyData> datas = lobbyDataList.lobbyList;
+			lobbyListTable.clearChildren();
 			for (LobbyData d : datas) {
 				String lobbyInfo = String.format("%s (#members:%s )", d.name, d.numMembers);
-				lobbyTable.add(new Label(lobbyInfo, skin));
-				lobbyTable.row();
-			}
+				lobbyListTable.add(new Label(lobbyInfo, skin));
 
+				TextButton joinLobbyBtn = new TextButton("Join", skin);
+				joinLobbyBtn.pad(10);
+				joinLobbyBtn.setUserObject(d.lobbyID);
+				joinLobbyBtn.addListener(new ClickListener() {
+					@Override
+					public void clicked(InputEvent event, float x, float y) {
+						SteamID id = (SteamID) joinLobbyBtn.getUserObject();
+						steam.getSmm().joinLobby(id);
+					}
+				});
+				lobbyListTable.add(joinLobbyBtn);
+				lobbyListTable.row();
+			}
 		}
 	}
 

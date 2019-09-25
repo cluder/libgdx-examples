@@ -6,8 +6,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 
 import ch.clu.libgdxexamples.data.GameData;
-import ch.clu.libgdxexamples.ui.screens.GameScreen;
-import ch.clu.libgdxexamples.ui.screens.Screens;
+import ch.clu.libgdxexamples.screens.game.GameScreen;
+import ch.clu.libgdxexamples.screens.util.Screens;
 import ch.clu.libgdxexamples.util.ScreenManager;
 
 public class UIInputController extends InputAdapter {

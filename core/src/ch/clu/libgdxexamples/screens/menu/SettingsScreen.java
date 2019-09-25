@@ -1,4 +1,4 @@
-package ch.clu.libgdxexamples.ui.screens;
+package ch.clu.libgdxexamples.screens.menu;
 
 import java.util.LinkedHashSet;
 
@@ -12,6 +12,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Logger;
 
+import ch.clu.libgdxexamples.screens.util.BaseUIScreen;
+import ch.clu.libgdxexamples.screens.util.Screens;
 import ch.clu.libgdxexamples.util.ScreenManager;
 import ch.clu.libgdxexamples.util.WindowMode;
 
