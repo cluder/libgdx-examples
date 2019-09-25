@@ -22,6 +22,7 @@ import ch.clu.libgdxexamples.screens.util.Screens;
 import ch.clu.libgdxexamples.steam.SteamHelper;
 import ch.clu.libgdxexamples.steam.data.LobbyData;
 import ch.clu.libgdxexamples.steam.data.LobbyDataList;
+import ch.clu.libgdxexamples.steam.data.LobbyMember;
 
 public class CreateSteamLobbyScreen extends BaseUIScreen implements Observer {
 
@@ -81,7 +82,6 @@ public class CreateSteamLobbyScreen extends BaseUIScreen implements Observer {
 		refreshLobbysButton.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				super.clicked(event, x, y);
 				refreshLobbys();
 			}
 		});
@@ -92,14 +92,25 @@ public class CreateSteamLobbyScreen extends BaseUIScreen implements Observer {
 		// current lobby
 		currentLobbyLabel = new Label("Current Lobby: none", skin);
 		mainGroup.addActor(currentLobbyLabel);
+		
+		Table lobbyTable = new Table(skin);
+		mainGroup.addActor(lobbyTable);
 
 		currentLobbyTable = new Table(skin);
-
+		mainGroup.addActor(currentLobbyTable);
+		
 		setDebugAll(true);
 	}
 
-	private void updateCurrentLobby() {
-
+	private void updateCurrentLobby(LobbyData data) {
+		currentLobbyLabel.setText(data.name);
+		
+		for (LobbyMember m : data.members) {
+			
+			currentLobbyTable.add(new Label(m.name, skin));
+			currentLobbyTable.row();
+		}
+		
 	}
 
 	protected void createLobby() {
@@ -120,7 +131,6 @@ public class CreateSteamLobbyScreen extends BaseUIScreen implements Observer {
 		steam.getSmm().addRequestLobbyListResultCountFilter(5);
 
 		steam.getSmm().requestLobbyList();
-
 	}
 
 	@Override
@@ -138,7 +148,8 @@ public class CreateSteamLobbyScreen extends BaseUIScreen implements Observer {
 		// lobby joined
 		if (arg instanceof LobbyData) {
 			LobbyData data = (LobbyData) arg;
-			currentLobbyLabel.setText(data.name);
+			
+			updateCurrentLobby(data);
 		}
 
 		// got updated lobby list
