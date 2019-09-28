@@ -4,6 +4,7 @@ import static java.lang.String.format;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Observable;
@@ -28,6 +29,7 @@ import com.codedisaster.steamworks.SteamUserCallback;
 import com.codedisaster.steamworks.SteamUtils;
 import com.codedisaster.steamworks.SteamUtilsCallback;
 
+import ch.clu.libgdxexamples.steam.data.LobbyChatMessage;
 import ch.clu.libgdxexamples.steam.data.LobbyData;
 import ch.clu.libgdxexamples.steam.data.LobbyDataList;
 import ch.clu.libgdxexamples.steam.data.LobbyMember;
@@ -159,10 +161,15 @@ public class SteamHelper extends Observable
 			Gdx.app.log(tag, "error during chat message handling", e);
 		}
 
-		CharBuffer asCharBuffer = bb.asCharBuffer();
-		Gdx.app.log(tag, format("onLobbyChatMessage %s %s %s %s %s", steamIDLobby, steamIDUser, entryType.name(),
-				chatID, asCharBuffer.toString()));
+		CharBuffer decode = StandardCharsets.UTF_8.decode(bb);
+		String string = decode.toString();
 
+		String username = steamFriends.getFriendPersonaName(steamIDUser);
+		Gdx.app.log(tag, format("onLobbyChatMessage %s %s %s %s %s %s", steamIDLobby, steamIDUser, entryType.name(),
+				chatID, username, string));
+
+		setChanged();
+		notifyObservers(new LobbyChatMessage(username, string));
 	}
 
 	@Override
@@ -187,6 +194,7 @@ public class SteamHelper extends Observable
 	@Override
 	public void onLobbyEnter(SteamID steamIDLobby, int chatPermissions, boolean blocked,
 			ChatRoomEnterResponse response) {
+		currentLobbyId = steamIDLobby;
 
 		LobbyData lobbyData = gatherLobbyData(steamIDLobby);
 		Gdx.app.log(tag, format("onLobbyEnter: %s members:%s", response, Arrays.toString(lobbyData.members.toArray())));

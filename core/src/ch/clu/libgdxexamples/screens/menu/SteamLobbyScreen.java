@@ -23,6 +23,7 @@ import ch.clu.libgdxexamples.util.ScreenManager;
 
 @SuppressWarnings("deprecation")
 public class SteamLobbyScreen extends BaseUIScreen implements Observer {
+
 	VerticalGroup mainVertGroup;
 	HorizontalGroup horizGroup;
 
@@ -110,12 +111,9 @@ public class SteamLobbyScreen extends BaseUIScreen implements Observer {
 		lobbyMemberTable.clear();
 
 		for (LobbyMember m : data.members) {
-
 			lobbyMemberTable.add(new Label(m.name, skin));
 			lobbyMemberTable.row();
-
 		}
-
 	}
 
 	@Override
