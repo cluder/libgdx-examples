@@ -12,6 +12,9 @@ public class DesktopLauncher {
 		config.setTitle("libGDX Examples");
 		config.setResizable(true);
 
+		// start on left screen
+		config.setWindowPosition(-800, 400);
+
 		new Lwjgl3Application(new LibGDXExamples(), config);
 	}
 }

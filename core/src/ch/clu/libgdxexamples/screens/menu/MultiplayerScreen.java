@@ -78,13 +78,13 @@ public class MultiplayerScreen extends BaseUIScreen {
 		table.row();
 
 		{
-			TextButton btn = addButton("Create Steam Lobby ...", skin, table);
+			TextButton btn = addButton("Steam Lobbies ...", skin, table);
 			table.getCell(btn).colspan(2);
 
 			btn.addListener(new ClickListener() {
 				@Override
 				public void clicked(InputEvent event, float x, float y) {
-					ScreenManager.getInstance().setScreen(Screens.CREATE_STEAM_LOBBY);
+					ScreenManager.getInstance().setScreen(Screens.LIST_STEAM_LOBBY);
 				}
 			});
 		}

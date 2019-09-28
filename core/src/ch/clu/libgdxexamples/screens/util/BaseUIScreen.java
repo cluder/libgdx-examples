@@ -2,6 +2,7 @@ package ch.clu.libgdxexamples.screens.util;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -25,8 +26,17 @@ public abstract class BaseUIScreen extends Stage implements Screen {
 
 	@Override
 	public void show() {
-		Gdx.input.setInputProcessor(this);
+		// create ui
 		create();
+
+		// create input processors
+		InputMultiplexer inputMultiplexer = new InputMultiplexer();
+		addInputProcessor(inputMultiplexer);
+		inputMultiplexer.addProcessor(this);
+		Gdx.input.setInputProcessor(inputMultiplexer);
+	}
+
+	protected void addInputProcessor(InputMultiplexer inputMultiplexer) {
 	}
 
 	abstract protected void create();

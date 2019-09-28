@@ -153,7 +153,8 @@ public class SteamHelper extends Observable
 		ChatEntry chatEntry = new ChatEntry();
 		ByteBuffer bb = ByteBuffer.allocateDirect(100);
 		try {
-			smm.getLobbyChatEntry(steamIDLobby, chatID, chatEntry, bb);
+			int lobbyChatEntry = smm.getLobbyChatEntry(steamIDLobby, chatID, chatEntry, bb);
+
 		} catch (SteamException e) {
 			Gdx.app.log(tag, "error during chat message handling", e);
 		}
@@ -266,16 +267,17 @@ public class SteamHelper extends Observable
 	 */
 	@Override
 	public void onLobbyCreated(SteamResult result, SteamID steamIDLobby) {
+		this.currentLobbyId = steamIDLobby;
 		Gdx.app.log(tag, format("onLobbyCreated:%s %s", steamIDLobby, result));
-
-		smm.setLobbyData(steamIDLobby, LOBBY_KEY_MAGIC, LOBBY_VALUE_MAGIC);
 
 		String lobbyName = SteamHelper.get().getSF().getPersonaName() + "'s Lobby";
 
+		smm.setLobbyData(steamIDLobby, LOBBY_KEY_MAGIC, LOBBY_VALUE_MAGIC);
 		smm.setLobbyData(steamIDLobby, LOBBY_KEY_NAME, lobbyName);
 
-		this.currentLobbyId = steamIDLobby;
-
+		LobbyData lobbyData = gatherLobbyData(steamIDLobby);
+		setChanged();
+		notifyObservers(lobbyData);
 	}
 
 	@Override
@@ -310,25 +312,25 @@ public class SteamHelper extends Observable
 
 	@Override
 	public void onAvatarImageLoaded(SteamID steamID, int image, int width, int height) {
-		Gdx.app.log(tag, "onAvatarImageLoaded: " + currentLobbyId);
+		Gdx.app.log(tag, "onAvatarImageLoaded: ");
 
 	}
 
 	@Override
 	public void onFriendRichPresenceUpdate(SteamID steamIDFriend, int appID) {
-		Gdx.app.log(tag, "onFriendRichPresenceUpdate: " + currentLobbyId);
+		Gdx.app.log(tag, "onFriendRichPresenceUpdate: ");
 
 	}
 
 	@Override
 	public void onGameRichPresenceJoinRequested(SteamID steamIDFriend, String connect) {
-		Gdx.app.log(tag, "onGameRichPresenceJoinRequested: " + currentLobbyId);
+		Gdx.app.log(tag, "onGameRichPresenceJoinRequested: ");
 
 	}
 
 	@Override
 	public void onGameServerChangeRequested(String server, String password) {
-		Gdx.app.log(tag, "onGameServerChangeRequested: " + currentLobbyId);
+		Gdx.app.log(tag, "onGameServerChangeRequested: " + server);
 
 	}
 

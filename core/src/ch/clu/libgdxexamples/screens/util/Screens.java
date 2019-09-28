@@ -6,18 +6,23 @@ import java.util.Map;
 import com.badlogic.gdx.Screen;
 
 import ch.clu.libgdxexamples.screens.game.GameScreen;
-import ch.clu.libgdxexamples.screens.menu.CreateSteamLobbyScreen;
 import ch.clu.libgdxexamples.screens.menu.JoinMultiplayerScreen;
+import ch.clu.libgdxexamples.screens.menu.ListSteamLobbiesScreen;
 import ch.clu.libgdxexamples.screens.menu.MainMenuScreen;
 import ch.clu.libgdxexamples.screens.menu.MultiplayerScreen;
 import ch.clu.libgdxexamples.screens.menu.SettingsScreen;
+import ch.clu.libgdxexamples.screens.menu.SteamLobbyScreen;
 
+/**
+ * Enumeration of game screens. Also acts as a cache.
+ */
 public enum Screens {
 	MAIN_MENU, //
 	SETTINGS, //
 	MULTIPLAYER, //
 	JOIN_MP, //
-	CREATE_STEAM_LOBBY, //
+	LIST_STEAM_LOBBY, //
+	STEAM_LOBBY, //
 	GAME; //
 
 	Map<Screens, Screen> screens = new HashMap<>();
@@ -49,10 +54,16 @@ public enum Screens {
 				screens.put(this, screen = new JoinMultiplayerScreen());
 			}
 			return screen;
-		case CREATE_STEAM_LOBBY:
+		case LIST_STEAM_LOBBY:
 			screen = screens.get(this);
 			if (screen == null) {
-				screens.put(this, screen = new CreateSteamLobbyScreen());
+				screens.put(this, screen = new ListSteamLobbiesScreen());
+			}
+			return screen;
+		case STEAM_LOBBY:
+			screen = screens.get(this);
+			if (screen == null) {
+				screens.put(this, screen = new SteamLobbyScreen());
 			}
 			return screen;
 		case GAME:
