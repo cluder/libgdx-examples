@@ -9,8 +9,8 @@ public class ResourceManager {
 	public static Skin getSkin() {
 //		String skinPath = "skins/flat/skin/skin.json";
 //		String skinPath = "skins/commodore64/skin/uiskin.json";
-//		String skinPath = "skins/shade/skin/uiskin.json";
-		String skinPath = "skins/neon/skin/neon-ui.json";
+		String skinPath = "skins/shade/skin/uiskin.json";
+//		String skinPath = "skins/neon/skin/neon-ui.json";
 		try {
 			FileHandle internal = Gdx.files.internal(skinPath);
 			return new Skin(internal);

@@ -15,6 +15,7 @@ import com.codedisaster.steamworks.SteamAuth;
 import com.codedisaster.steamworks.SteamException;
 import com.codedisaster.steamworks.SteamFriends;
 import com.codedisaster.steamworks.SteamFriends.PersonaChange;
+import com.codedisaster.steamworks.SteamFriends.PersonaState;
 import com.codedisaster.steamworks.SteamFriendsCallback;
 import com.codedisaster.steamworks.SteamID;
 import com.codedisaster.steamworks.SteamMatchmaking;
@@ -23,6 +24,7 @@ import com.codedisaster.steamworks.SteamMatchmaking.ChatEntryType;
 import com.codedisaster.steamworks.SteamMatchmaking.ChatMemberStateChange;
 import com.codedisaster.steamworks.SteamMatchmaking.ChatRoomEnterResponse;
 import com.codedisaster.steamworks.SteamMatchmakingCallback;
+import com.codedisaster.steamworks.SteamMatchmakingKeyValuePair;
 import com.codedisaster.steamworks.SteamResult;
 import com.codedisaster.steamworks.SteamServerListRequest;
 import com.codedisaster.steamworks.SteamUserCallback;
@@ -206,8 +208,17 @@ public class SteamHelper extends Observable
 
 	@Override
 	public void onLobbyDataUpdate(SteamID steamIDLobby, SteamID steamIDMember, boolean success) {
-		Gdx.app.log(tag,
-				"onLobbyDataUpdate lobbyID:" + steamIDLobby + " member:" + steamIDMember + " success:" + success);
+		int lobbyDataCount = smm.getLobbyDataCount(steamIDLobby);
+		String memberName = steamFriends.getFriendPersonaName(steamIDMember);
+
+		Gdx.app.log(tag, format("onLobbyDataUpdate lobbyID:%s member: %s (%s) success:%s count:%s", //
+				steamIDLobby, steamIDMember, memberName, success, lobbyDataCount));
+
+		SteamMatchmakingKeyValuePair keyValuePair = new SteamMatchmakingKeyValuePair();
+		for (int i = 0; i < lobbyDataCount; i++) {
+			boolean data = smm.getLobbyDataByIndex(steamIDLobby, i, keyValuePair);
+			Gdx.app.log(tag, format("data [%s] key:%s value:%s", i, keyValuePair.getKey(), keyValuePair.getValue()));
+		}
 
 	}
 
@@ -220,6 +231,9 @@ public class SteamHelper extends Observable
 		Gdx.app.log(tag, format("onLobbyChatUpdate: %s %s steamIDUserChangedName=%s, userMakingChangeName=%s ",
 				steamIDLobby, stateChange, steamIDUserChangedName, userMakingChangeName));
 
+		LobbyData lobbyData = gatherLobbyData(steamIDLobby);
+		setChanged();
+		notifyObservers(lobbyData);
 	}
 
 	@Override
@@ -303,6 +317,10 @@ public class SteamHelper extends Observable
 	@Override
 	public void onPersonaStateChange(SteamID steamID, PersonaChange change) {
 		Gdx.app.log(tag, format("onPersonaStateChange: %s", change.name()));
+
+		PersonaState personaState = steamFriends.getPersonaState();
+		String name = steamFriends.getFriendPersonaName(steamID);
+		Gdx.app.log(tag, format("personaState: %s %s", name, personaState));
 
 	}
 

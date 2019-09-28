@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
@@ -61,11 +62,30 @@ public class ListSteamLobbiesScreen extends BaseUIScreen implements Observer {
 		Label title = new Label("Steam Lobby List", skin);
 		mainGroup.addActor(title);
 
+		Table scrollableLobbyListContainer = new Table(skin);
 		lobbyListTable = new Table(skin);
-		mainGroup.addActor(lobbyListTable);
+
+		// wrap lobby list table in a scroll pane
+		ScrollPane scrollPane = new ScrollPane(lobbyListTable, skin);
+		scrollPane.setFadeScrollBars(false);
+
+		// add scroll pane to main group
+		mainGroup.addActor(scrollableLobbyListContainer);
+
+		scrollableLobbyListContainer.add(scrollPane).height(getHeight() * 0.6f);
 
 		HorizontalGroup buttonGroup = new HorizontalGroup();
 		mainGroup.addActor(buttonGroup);
+
+		Button back = new TextButton("Back", skin);
+		back.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				ScreenManager.getInstance().setScreen(Screens.MULTIPLAYER);
+			}
+		});
+		buttonGroup.padTop(5);
+		buttonGroup.addActor(back);
 
 		Button createLobbyButton = new TextButton("Create Lobby", skin);
 		createLobbyButton.addListener(new ClickListener() {
@@ -88,9 +108,10 @@ public class ListSteamLobbiesScreen extends BaseUIScreen implements Observer {
 		buttonGroup.padTop(5);
 		buttonGroup.addActor(refreshLobbysButton);
 
+		// trigger refresh
 		refreshLobbies();
 
-		setDebugAll(true);
+		setDebugAll(false);
 	}
 
 	protected void createLobby() {
@@ -108,7 +129,7 @@ public class ListSteamLobbiesScreen extends BaseUIScreen implements Observer {
 	private void refreshLobbies() {
 //		steam.getSmm().addRequestLobbyListStringFilter(SteamHelper.LOBBY_KEY_MAGIC, SteamHelper.LOBBY_VALUE_MAGIC,
 //				LobbyComparison.Equal);
-		steam.getSmm().addRequestLobbyListResultCountFilter(5);
+//		steam.getSmm().addRequestLobbyListResultCountFilter(10);
 
 		steam.getSmm().requestLobbyList();
 	}
@@ -136,8 +157,11 @@ public class ListSteamLobbiesScreen extends BaseUIScreen implements Observer {
 	private void updateLobbyList(LobbyDataList lobbyDataList) {
 		List<LobbyData> datas = lobbyDataList.lobbyList;
 		lobbyListTable.clearChildren();
+		int counter = 0;
 		for (LobbyData d : datas) {
+			counter++;
 			String lobbyInfo = String.format("%s (#members:%s )", d.name, d.numMembers);
+			lobbyListTable.add(new Label("#" + counter, skin));
 			lobbyListTable.add(new Label(lobbyInfo, skin));
 
 			TextButton joinLobbyBtn = new TextButton("Join", skin);

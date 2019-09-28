@@ -1,7 +1,5 @@
-package ch.clu.libgdxexamples.screens.menu;
+package ch.clu.libgdxexamples.screens.menu.widgets;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -9,22 +7,22 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.codedisaster.steamworks.SteamID;
 
 import ch.clu.libgdxexamples.steam.SteamHelper;
 import ch.clu.libgdxexamples.steam.data.LobbyChatMessage;
 import ch.clu.libgdxexamples.util.ResourceManager;
 
+@SuppressWarnings("deprecation")
 public class ChatArea extends InputAdapter implements Observer {
 
-	private Deque<String> messages = new ArrayDeque<>();
-	private int maxSize = 10;
-
-	VerticalGroup vGroup;
+	Table mainTable;
 	TextArea textArea;
 	TextField textField;
 
@@ -34,23 +32,27 @@ public class ChatArea extends InputAdapter implements Observer {
 		Skin skin = ResourceManager.getSkin();
 
 		// vertical group
-		vGroup = new VerticalGroup();
+		mainTable = new Table(skin);
+		textArea = new TextArea("", skin);
+
+		mainTable.add(textArea).width(Gdx.graphics.getWidth() * 0.4f).height(Gdx.graphics.getHeight() * 0.5f);
+		mainTable.row();
 
 		// text field containing previous chat
-		textArea = new TextArea("", skin);
 		textArea.setPrefRows(10);
 		textArea.setDisabled(true);
-		textArea.setSize(Gdx.graphics.getWidth() * 0.5f, Gdx.graphics.getWidth() * 0.5f);
-		vGroup.addActor(textArea);
 
 		// input field
+		HorizontalGroup inputGroup = new HorizontalGroup();
 		textField = new TextField("", skin);
-		vGroup.addActor(textField);
+		inputGroup.addActor(new Label("Chat: ", skin));
+		inputGroup.addActor(textField);
+		mainTable.add(inputGroup);
 
 	}
 
 	public Actor getActor() {
-		return vGroup;
+		return mainTable;
 	}
 
 	// input processor
@@ -63,20 +65,20 @@ public class ChatArea extends InputAdapter implements Observer {
 			break;
 		case Keys.ENTER:
 			String text = textField.getText();
-
-			messages.add(text);
-			if (messages.size() > maxSize) {
-				messages.removeFirst();
-			}
+//
+//			messages.add(text);
+//			if (messages.size() > maxSize) {
+//				messages.removeFirst();
+//			}
 
 			SteamID steamIDLobby = SteamHelper.get().getSteamIDLobby();
 			SteamHelper.get().getSmm().sendLobbyChatMsg(steamIDLobby, text);
 
 //			textArea.appendText(text + "\n");
-			textArea.clear();
-			for (String s : messages) {
-				textArea.appendText(s + "\n");
-			}
+//			textArea.clear();
+//			for (String s : messages) {
+//				textArea.appendText(s + "\n");
+//			}
 
 			textField.setText("");
 

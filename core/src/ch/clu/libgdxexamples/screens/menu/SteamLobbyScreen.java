@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 
+import ch.clu.libgdxexamples.screens.menu.widgets.ChatArea;
 import ch.clu.libgdxexamples.screens.util.BaseUIScreen;
 import ch.clu.libgdxexamples.screens.util.Screens;
 import ch.clu.libgdxexamples.steam.SteamHelper;
@@ -60,6 +61,7 @@ public class SteamLobbyScreen extends BaseUIScreen implements Observer {
 		mainVertGroup.setFillParent(true);
 		mainVertGroup.align(Align.center);
 		mainVertGroup.space(5);
+
 		addActor(mainVertGroup);
 
 		horizGroup = new HorizontalGroup();
@@ -90,11 +92,12 @@ public class SteamLobbyScreen extends BaseUIScreen implements Observer {
 		backBtn.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
+				SteamHelper.get().leaveLobby();
 				ScreenManager.getInstance().setScreen(Screens.LIST_STEAM_LOBBY);
 			}
 		});
 
-		setDebugAll(true);
+		setDebugAll(false);
 	}
 
 	@Override

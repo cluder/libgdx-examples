@@ -49,7 +49,8 @@ public abstract class BaseUIScreen extends Stage implements Screen {
 
 		Debugger.printDebugInfo();
 
-		Gdx.gl.glClearColor(0, 0, 0, 1);
+		float brightness = 25f;
+		Gdx.gl.glClearColor(brightness / 255, brightness / 255, brightness / 255, 0);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		act();
