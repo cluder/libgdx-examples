@@ -1,5 +1,6 @@
 package ch.clu.libgdxexamples.desktop;
 
+import com.badlogic.gdx.Graphics.Monitor;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 
@@ -13,7 +14,12 @@ public class DesktopLauncher {
 		config.setResizable(true);
 
 		// start on left screen
-		config.setWindowPosition(-800, 400);
+		Monitor[] monitors = Lwjgl3ApplicationConfiguration.getMonitors();
+		int xOffset = 0;
+		if (monitors.length > 1) {
+			xOffset = -400;
+		}
+		config.setWindowPosition(xOffset, 400);
 
 		new Lwjgl3Application(new LibGDXExamples(), config);
 	}
