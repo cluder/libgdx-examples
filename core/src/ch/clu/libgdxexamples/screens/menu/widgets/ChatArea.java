@@ -48,11 +48,14 @@ public class ChatArea extends InputAdapter implements Observer {
 		inputGroup.addActor(new Label("Chat: ", skin));
 		inputGroup.addActor(textField);
 		mainTable.add(inputGroup);
-
 	}
 
 	public Actor getActor() {
 		return mainTable;
+	}
+
+	public void addMessage(String msg) {
+		textArea.appendText(msg + "\n");
 	}
 
 	// input processor
@@ -65,7 +68,7 @@ public class ChatArea extends InputAdapter implements Observer {
 			break;
 		case Keys.ENTER:
 			String text = textField.getText();
-//
+
 //			messages.add(text);
 //			if (messages.size() > maxSize) {
 //				messages.removeFirst();

@@ -160,8 +160,8 @@ public class ListSteamLobbiesScreen extends BaseUIScreen implements Observer {
 		int counter = 0;
 		for (LobbyData d : datas) {
 			counter++;
-			String lobbyInfo = String.format("%s (#members:%s )", d.name, d.numMembers);
-			lobbyListTable.add(new Label("#" + counter, skin));
+			String lobbyInfo = String.format("%s (#members: %s )", d.name, d.numMembers);
+			lobbyListTable.add(new Label("# " + counter, skin));
 			lobbyListTable.add(new Label(lobbyInfo, skin));
 
 			TextButton joinLobbyBtn = new TextButton("Join", skin);

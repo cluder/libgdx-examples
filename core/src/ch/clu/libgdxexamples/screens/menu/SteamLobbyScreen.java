@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
@@ -18,6 +19,7 @@ import ch.clu.libgdxexamples.screens.menu.widgets.ChatArea;
 import ch.clu.libgdxexamples.screens.util.BaseUIScreen;
 import ch.clu.libgdxexamples.screens.util.Screens;
 import ch.clu.libgdxexamples.steam.SteamHelper;
+import ch.clu.libgdxexamples.steam.data.LobbyChatUpdate;
 import ch.clu.libgdxexamples.steam.data.LobbyData;
 import ch.clu.libgdxexamples.steam.data.LobbyMember;
 import ch.clu.libgdxexamples.util.ScreenManager;
@@ -42,6 +44,10 @@ public class SteamLobbyScreen extends BaseUIScreen implements Observer {
 		if (arg instanceof LobbyData) {
 			LobbyData data = (LobbyData) arg;
 			updateCurrentLobby(data);
+		}
+		if (arg instanceof LobbyChatUpdate) {
+			LobbyChatUpdate data = (LobbyChatUpdate) arg;
+			chatArea.addMessage(data.name + " " + data.action);
 		}
 	}
 
@@ -76,8 +82,14 @@ public class SteamLobbyScreen extends BaseUIScreen implements Observer {
 		mainVertGroup.addActor(horizGroup);
 
 		// left: member table
+		Table lobbyMemberTableContainer = new Table(skin);
 		lobbyMemberTable = new Table(skin);
-		horizGroup.addActor(lobbyMemberTable);
+		ScrollPane lobbyMemberTableScrollPane = new ScrollPane(lobbyMemberTable, skin);
+		lobbyMemberTableScrollPane.setFadeScrollBars(false);
+		lobbyMemberTableContainer.add(lobbyMemberTableScrollPane) //
+				.height(getHeight() * 0.5f).width(getWidth() * 0.2f);
+
+		horizGroup.addActor(lobbyMemberTableContainer);
 
 		// right: vertical group with chat area and field
 		chatArea = new ChatArea();

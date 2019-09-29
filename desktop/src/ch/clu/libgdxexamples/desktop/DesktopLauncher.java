@@ -16,7 +16,7 @@ public class DesktopLauncher {
 		// start on left screen
 		Monitor[] monitors = Lwjgl3ApplicationConfiguration.getMonitors();
 		int xOffset = 0;
-		if (monitors.length > 1) {
+		if (monitors.length > 1 && monitors[1].virtualX < 0) {
 			xOffset = -400;
 		}
 		config.setWindowPosition(xOffset, 400);

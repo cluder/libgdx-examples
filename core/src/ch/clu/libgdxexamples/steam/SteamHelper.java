@@ -32,6 +32,7 @@ import com.codedisaster.steamworks.SteamUtils;
 import com.codedisaster.steamworks.SteamUtilsCallback;
 
 import ch.clu.libgdxexamples.steam.data.LobbyChatMessage;
+import ch.clu.libgdxexamples.steam.data.LobbyChatUpdate;
 import ch.clu.libgdxexamples.steam.data.LobbyData;
 import ch.clu.libgdxexamples.steam.data.LobbyDataList;
 import ch.clu.libgdxexamples.steam.data.LobbyMember;
@@ -234,6 +235,11 @@ public class SteamHelper extends Observable
 		LobbyData lobbyData = gatherLobbyData(steamIDLobby);
 		setChanged();
 		notifyObservers(lobbyData);
+
+		LobbyChatUpdate chatUpdate = new LobbyChatUpdate(steamIDUserChangedName, stateChange.toString());
+		setChanged();
+		notifyObservers(chatUpdate);
+
 	}
 
 	@Override
