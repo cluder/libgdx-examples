@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.codedisaster.steamworks.SteamID;
+import com.codedisaster.steamworks.SteamMatchmaking.LobbyComparison;
 import com.codedisaster.steamworks.SteamMatchmaking.LobbyType;
 
 import ch.clu.libgdxexamples.screens.util.BaseUIScreen;
@@ -64,6 +65,7 @@ public class ListSteamLobbiesScreen extends BaseUIScreen implements Observer {
 
 		Table scrollableLobbyListContainer = new Table(skin);
 		lobbyListTable = new Table(skin);
+		lobbyListTable.add(new Label("no lobbies found", skin));
 
 		// wrap lobby list table in a scroll pane
 		ScrollPane scrollPane = new ScrollPane(lobbyListTable, skin);
@@ -127,8 +129,8 @@ public class ListSteamLobbiesScreen extends BaseUIScreen implements Observer {
 	 * @param lobbyListTable
 	 */
 	private void refreshLobbies() {
-//		steam.getSmm().addRequestLobbyListStringFilter(SteamHelper.LOBBY_KEY_MAGIC, SteamHelper.LOBBY_VALUE_MAGIC,
-//				LobbyComparison.Equal);
+		steam.getSmm().addRequestLobbyListStringFilter(SteamHelper.LOBBY_KEY_MAGIC, SteamHelper.LOBBY_VALUE_MAGIC,
+				LobbyComparison.Equal);
 //		steam.getSmm().addRequestLobbyListResultCountFilter(10);
 
 		steam.getSmm().requestLobbyList();
@@ -157,6 +159,7 @@ public class ListSteamLobbiesScreen extends BaseUIScreen implements Observer {
 	private void updateLobbyList(LobbyDataList lobbyDataList) {
 		List<LobbyData> datas = lobbyDataList.lobbyList;
 		lobbyListTable.clearChildren();
+
 		int counter = 0;
 		for (LobbyData d : datas) {
 			counter++;
