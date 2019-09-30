@@ -291,10 +291,10 @@ public class SteamHelper extends Observable
 
 			lobbyDataList.lobbyList.add(data);
 			Gdx.app.log(tag, format("  lobby ID/Name:%s/%s member#:%s", data.lobbyID, data.name, data.numMembers));
-			// notify interested observers
-			setChanged();
-			notifyObservers(lobbyDataList);
 		}
+		// notify interested observers
+		setChanged();
+		notifyObservers(lobbyDataList);
 	}
 
 	private LobbyData gatherLobbyData(SteamID lobbyID) {

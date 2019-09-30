@@ -6,6 +6,7 @@ import java.util.Observer;
 
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -33,6 +34,7 @@ public class ListSteamLobbiesScreen extends BaseUIScreen implements Observer {
 
 	// ui elements
 	Table lobbyListTable;
+	CheckBox filterCheckBox;
 
 	public ListSteamLobbiesScreen() {
 		steam = SteamHelper.get();
@@ -65,7 +67,7 @@ public class ListSteamLobbiesScreen extends BaseUIScreen implements Observer {
 
 		Table scrollableLobbyListContainer = new Table(skin);
 		lobbyListTable = new Table(skin);
-		lobbyListTable.add(new Label("no lobbies found", skin));
+		clearLobbyList();
 
 		// wrap lobby list table in a scroll pane
 		ScrollPane scrollPane = new ScrollPane(lobbyListTable, skin);
@@ -75,6 +77,16 @@ public class ListSteamLobbiesScreen extends BaseUIScreen implements Observer {
 		mainGroup.addActor(scrollableLobbyListContainer);
 
 		scrollableLobbyListContainer.add(scrollPane).height(getHeight() * 0.6f);
+
+		filterCheckBox = new CheckBox("MY Game only", skin);
+		filterCheckBox.setChecked(true);
+		filterCheckBox.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				refreshLobbies();
+			}
+		});
+		mainGroup.addActor(filterCheckBox);
 
 		HorizontalGroup buttonGroup = new HorizontalGroup();
 		mainGroup.addActor(buttonGroup);
@@ -116,6 +128,13 @@ public class ListSteamLobbiesScreen extends BaseUIScreen implements Observer {
 		setDebugAll(false);
 	}
 
+	private void clearLobbyList() {
+		lobbyListTable.clearChildren();
+		// default entry
+		lobbyListTable.add(new Label("no lobbies found", skin));
+		lobbyListTable.row();
+	}
+
 	protected void createLobby() {
 		if (steam.getSteamIDLobby() != null) {
 			steam.getSmm().leaveLobby(steam.getSteamIDLobby());
@@ -129,8 +148,11 @@ public class ListSteamLobbiesScreen extends BaseUIScreen implements Observer {
 	 * @param lobbyListTable
 	 */
 	private void refreshLobbies() {
-		steam.getSmm().addRequestLobbyListStringFilter(SteamHelper.LOBBY_KEY_MAGIC, SteamHelper.LOBBY_VALUE_MAGIC,
-				LobbyComparison.Equal);
+		if (filterCheckBox.isChecked()) {
+			steam.getSmm().addRequestLobbyListStringFilter(SteamHelper.LOBBY_KEY_MAGIC, SteamHelper.LOBBY_VALUE_MAGIC,
+					LobbyComparison.Equal);
+		}
+
 //		steam.getSmm().addRequestLobbyListResultCountFilter(10);
 
 		steam.getSmm().requestLobbyList();
@@ -158,9 +180,13 @@ public class ListSteamLobbiesScreen extends BaseUIScreen implements Observer {
 
 	private void updateLobbyList(LobbyDataList lobbyDataList) {
 		List<LobbyData> datas = lobbyDataList.lobbyList;
-		lobbyListTable.clearChildren();
+		if (datas.isEmpty()) {
+			clearLobbyList();
+			return;
+		}
 
 		int counter = 0;
+		lobbyListTable.clear();
 		for (LobbyData d : datas) {
 			counter++;
 			String lobbyInfo = String.format("%s (#members: %s )", d.name, d.numMembers);
