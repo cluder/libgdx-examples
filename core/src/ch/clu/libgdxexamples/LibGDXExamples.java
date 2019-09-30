@@ -18,4 +18,10 @@ public class LibGDXExamples extends Game {
 		ScreenManager.getInstance().setScreen(Screens.MAIN_MENU);
 	}
 
+	@Override
+	public void dispose() {
+		super.dispose();
+
+		SteamHelper.get().shutdown();
+	}
 }

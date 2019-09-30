@@ -140,6 +140,7 @@ public class GameScreen implements Screen {
 	public void render(float delta) {
 
 		SteamAPI.runCallbacks();
+//		SteamGameServerAPI.runCallbacks();
 
 		// clear screen and paint a black background
 		Gdx.gl.glClearColor(0, 0, 0, 1);

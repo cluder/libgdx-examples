@@ -46,6 +46,7 @@ public abstract class BaseUIScreen extends Stage implements Screen {
 	@Override
 	public void render(float delta) {
 		SteamAPI.runCallbacks();
+//		SteamGameServerAPI.runCallbacks();
 
 		Debugger.printDebugInfo();
 

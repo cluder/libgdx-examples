@@ -25,6 +25,9 @@ import com.codedisaster.steamworks.SteamMatchmaking.ChatMemberStateChange;
 import com.codedisaster.steamworks.SteamMatchmaking.ChatRoomEnterResponse;
 import com.codedisaster.steamworks.SteamMatchmakingCallback;
 import com.codedisaster.steamworks.SteamMatchmakingKeyValuePair;
+import com.codedisaster.steamworks.SteamNetworking;
+import com.codedisaster.steamworks.SteamNetworking.P2PSessionError;
+import com.codedisaster.steamworks.SteamNetworkingCallback;
 import com.codedisaster.steamworks.SteamResult;
 import com.codedisaster.steamworks.SteamServerListRequest;
 import com.codedisaster.steamworks.SteamUserCallback;
@@ -38,7 +41,9 @@ import ch.clu.libgdxexamples.steam.data.LobbyDataList;
 import ch.clu.libgdxexamples.steam.data.LobbyMember;
 
 public class SteamHelper extends Observable
-		implements SteamUtilsCallback, SteamMatchmakingCallback, SteamUserCallback, SteamFriendsCallback {
+		implements SteamUtilsCallback, SteamMatchmakingCallback, SteamUserCallback, SteamFriendsCallback,
+		// SteamGameServerCallback,
+		SteamNetworkingCallback {
 	String tag = this.getClass().getSimpleName();
 
 	// singleton instance
@@ -53,7 +58,9 @@ public class SteamHelper extends Observable
 	private SteamMatchmaking smm;
 	private SteamFriends steamFriends;
 	private SteamUtils steamUtils;
-
+	SteamNetworking steamNetworking;
+//	private SteamGameServer steamGameServer;
+//	private SteamGameServerNetworking steamGameServerNetworking;
 	// steam members
 	private SteamID currentLobbyId;
 
@@ -73,6 +80,8 @@ public class SteamHelper extends Observable
 	}
 
 	public void initSteam() {
+		short steamPort = 27500;
+
 		try {
 			SteamAPI.loadLibraries();
 			if (!SteamAPI.init()) {
@@ -81,6 +90,15 @@ public class SteamHelper extends Observable
 				SteamAPI.printDebugInfo(System.err);
 				return;
 			}
+//			SteamGameServerAPI.loadLibraries();
+//			boolean serverInit = SteamGameServerAPI.init(0, (short) steamPort, (short) (steamPort + 1),
+//					(short) (steamPort + 2), ServerMode.NoAuthentication, "1.0");
+//			if (!serverInit) {
+//				System.out.println("Could not init steam server");
+//				SteamAPI.printDebugInfo(System.err);
+//				return;
+//			}
+
 		} catch (SteamException e) {
 			// Error extracting or loading native libraries
 			Gdx.app.log("init", e.getMessage(), e);
@@ -92,7 +110,15 @@ public class SteamHelper extends Observable
 		smm = new SteamMatchmaking(this);
 		steamFriends = new SteamFriends(this);
 		steamUtils = new SteamUtils(this);
+		steamNetworking = new SteamNetworking(this);
+//		steamGameServer = new SteamGameServer(this);
+//		steamGameServerNetworking = new SteamGameServerNetworking(this);
 
+	}
+
+	public void shutdown() {
+		SteamAPI.shutdown();
+//		SteamGameServerAPI.shutdown();
 	}
 
 	public SteamFriends getSF() {
@@ -103,8 +129,16 @@ public class SteamHelper extends Observable
 		return steamUtils;
 	}
 
+//	public SteamGameServer getSGS() {
+//		return steamGameServer;
+//	}
+
 	public SteamMatchmaking getSmm() {
 		return smm;
+	}
+
+	public SteamNetworking getSN() {
+		return steamNetworking;
 	}
 
 	public LobbyDataList getLobbyList() {
@@ -133,7 +167,7 @@ public class SteamHelper extends Observable
 		Gdx.app.log(tag, "onSteamShutdown");
 	}
 
-	// SteamUserCallback
+	// =========== Steam USer start ============
 	@Override
 	public void onValidateAuthTicket(SteamID steamID, SteamAuth.AuthSessionResponse authSessionResponse,
 			SteamID steamID1) {
@@ -152,6 +186,8 @@ public class SteamHelper extends Observable
 		Gdx.app.log(tag, "onEncryptedAppTicket");
 
 	}
+
+	// =========== Steam Matchmaking start ============
 
 	@Override
 	public void onLobbyChatMessage(SteamID steamIDLobby, SteamID steamIDUser, ChatEntryType entryType, int chatID) {
@@ -311,13 +347,18 @@ public class SteamHelper extends Observable
 	@Override
 	public void onFavoritesListAccountsUpdated(SteamResult result) {
 		Gdx.app.log(tag, "onFavoritesListAccountsUpdated");
-
 	}
 
 	@Override
+	public void onGameServerChangeRequested(String server, String password) {
+		Gdx.app.log(tag, "onGameServerChangeRequested: " + server);
+
+	}
+
+	// =========== Steam Friends start ============
+	@Override
 	public void onSetPersonaNameResponse(boolean success, boolean localSuccess, SteamResult result) {
 		Gdx.app.log(tag, "onSetPersonaNameResponse");
-
 	}
 
 	@Override
@@ -327,7 +368,6 @@ public class SteamHelper extends Observable
 		PersonaState personaState = steamFriends.getPersonaState();
 		String name = steamFriends.getFriendPersonaName(steamID);
 		Gdx.app.log(tag, format("personaState: %s %s", name, personaState));
-
 	}
 
 	@Override
@@ -360,10 +400,88 @@ public class SteamHelper extends Observable
 
 	}
 
+	// =========== Steam Game Server start ============
+//	@Override
+//	public void onValidateAuthTicketResponse(SteamID steamID, AuthSessionResponse authSessionResponse,
+//			SteamID ownerSteamID) {
+//		Gdx.app.log(tag, format("onValidateAuthTicketResponse: "));
+//
+//	}
+//
+//	@Override
+//	public void onSteamServersConnected() {
+//		Gdx.app.log(tag, format("onSteamServersConnected: "));
+//
+//	}
+//
+//	@Override
+//	public void onSteamServerConnectFailure(SteamResult result, boolean stillRetrying) {
+//		Gdx.app.log(tag, format("onSteamServerConnectFailure: %s %s ", result, stillRetrying));
+//	}
+//
+//	@Override
+//	public void onSteamServersDisconnected(SteamResult result) {
+//		Gdx.app.log(tag, format("onSteamServersDisconnected: %s", result));
+//	}
+//
+//	@Override
+//	public void onClientApprove(SteamID steamID, SteamID ownerSteamID) {
+//		Gdx.app.log(tag, format("onClientApprove: %s ", steamID, ownerSteamID));
+//	}
+//
+//	@Override
+//	public void onClientDeny(SteamID steamID, DenyReason denyReason, String optionalText) {
+//		Gdx.app.log(tag, format("onClientDeny: %s", steamID, denyReason, optionalText));
+//	}
+//
+//	@Override
+//	public void onClientKick(SteamID steamID, DenyReason denyReason) {
+//		Gdx.app.log(tag, format("onClientKick: %s", steamID, denyReason));
+//	}
+//
+//	@Override
+//	public void onClientGroupStatus(SteamID steamID, SteamID steamIDGroup, boolean isMember, boolean isOfficer) {
+//		Gdx.app.log(tag, format("onClientGroupStatus: %s %s %s %s", steamID, steamIDGroup, isMember, isOfficer));
+//	}
+//
+//	@Override
+//	public void onAssociateWithClanResult(SteamResult result) {
+//		Gdx.app.log(tag, format("onAssociateWithClanResult: %s", result));
+//	}
+//
+//	@Override
+//	public void onComputeNewPlayerCompatibilityResult(SteamResult result, int playersThatDontLikeCandidate,
+//			int playersThatCandidateDoesntLike, int clanPlayersThatDontLikeCandidate, SteamID steamIDCandidate) {
+//
+//		Gdx.app.log(tag,
+//				format("onComputeNewPlayerCompatibilityResult: %s %s %s %s %s", result, playersThatDontLikeCandidate,
+//						playersThatCandidateDoesntLike, clanPlayersThatDontLikeCandidate, steamIDCandidate));
+//	}
+
+	// =========== Steam Networking start ============
 	@Override
-	public void onGameServerChangeRequested(String server, String password) {
-		Gdx.app.log(tag, "onGameServerChangeRequested: " + server);
+	public void onP2PSessionConnectFail(SteamID steamIDRemote, P2PSessionError sessionError) {
+		Gdx.app.log(tag, format("onP2PSessionConnectFail: %s %s", steamIDRemote, sessionError));
 
 	}
+
+	/**
+	 * User tries to send us data. We accept, if we are in the same lobby,
+	 */
+	@Override
+	public void onP2PSessionRequest(SteamID steamIDRemote) {
+		Gdx.app.log(tag, format("onP2PSessionRequest: %s", steamIDRemote));
+
+		LobbyData lobbyData = gatherLobbyData(currentLobbyId);
+
+		for (LobbyMember m : lobbyData.members) {
+			if (m.steamID.equals(steamIDRemote)) {
+				// found user in our lobby - accept
+				steamNetworking.acceptP2PSessionWithUser(steamIDRemote);
+			}
+		}
+	}
+
+	// =========== Steam Networking stop ============
 
 }

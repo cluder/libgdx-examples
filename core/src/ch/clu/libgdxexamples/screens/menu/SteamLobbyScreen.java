@@ -26,7 +26,7 @@ import ch.clu.libgdxexamples.util.ScreenManager;
 
 @SuppressWarnings("deprecation")
 public class SteamLobbyScreen extends BaseUIScreen implements Observer {
-
+	String tag = SteamLobbyScreen.class.getSimpleName();
 	VerticalGroup mainVertGroup;
 	HorizontalGroup horizGroup;
 
@@ -109,6 +109,16 @@ public class SteamLobbyScreen extends BaseUIScreen implements Observer {
 			}
 		});
 
+		Button startGame = new TextButton("Start Game", skin);
+		buttonGroup.addActor(startGame);
+		startGame.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				SteamHelper sh = SteamHelper.get();
+				String serverName = sh.getSF().getPersonaName() + "'s Server";
+//				sh.getSN().sendP2PPacket(sh.getSteamIDLobby(), data, P2PSend.Reliable, );
+			}
+		});
 		setDebugAll(false);
 	}
 
