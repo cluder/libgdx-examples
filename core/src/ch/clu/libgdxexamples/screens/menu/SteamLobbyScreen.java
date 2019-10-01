@@ -15,7 +15,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 
-import ch.clu.libgdxexamples.net.packets.Messages;
+import ch.clu.libgdxexamples.net.Messages;
+import ch.clu.libgdxexamples.net.NetworkUtil;
 import ch.clu.libgdxexamples.screens.menu.widgets.ChatArea;
 import ch.clu.libgdxexamples.screens.util.BaseUIScreen;
 import ch.clu.libgdxexamples.screens.util.Screens;
@@ -23,7 +24,6 @@ import ch.clu.libgdxexamples.steam.SteamHelper;
 import ch.clu.libgdxexamples.steam.data.LobbyChatUpdate;
 import ch.clu.libgdxexamples.steam.data.LobbyData;
 import ch.clu.libgdxexamples.steam.data.LobbyMember;
-import ch.clu.libgdxexamples.util.NetworkUtil;
 import ch.clu.libgdxexamples.util.ScreenManager;
 
 @SuppressWarnings("deprecation")
@@ -56,7 +56,7 @@ public class SteamLobbyScreen extends BaseUIScreen implements Observer {
 	@Override
 	public void render(float delta) {
 		super.render(delta);
-
+		NetworkUtil.poll();
 	}
 
 	@Override

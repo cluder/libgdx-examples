@@ -453,7 +453,8 @@ public class SteamHelper extends Observable
 	// =========== Steam Networking start ============
 	@Override
 	public void onP2PSessionConnectFail(SteamID steamIDRemote, P2PSessionError sessionError) {
-		Gdx.app.log(tag, format("onP2PSessionConnectFail: %s %s", steamIDRemote, sessionError));
+		String friendPersonaName = SteamHelper.get().getSF().getFriendPersonaName(steamIDRemote);
+		Gdx.app.log(tag, format("onP2PSessionConnectFail: %s (%s) %s", friendPersonaName, steamIDRemote, sessionError));
 
 	}
 
@@ -469,7 +470,9 @@ public class SteamHelper extends Observable
 		for (LobbyMember m : lobbyData.members) {
 			if (m.steamID.equals(steamIDRemote)) {
 				// found user in our lobby - accept
-				steamNetworking.acceptP2PSessionWithUser(steamIDRemote);
+				boolean accept = steamNetworking.acceptP2PSessionWithUser(steamIDRemote);
+				Gdx.app.log(tag,
+						String.format("accepting session with:%s  %s", m.name, accept));
 			}
 		}
 	}
