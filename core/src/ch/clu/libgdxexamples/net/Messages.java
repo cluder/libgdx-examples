@@ -11,7 +11,7 @@ public enum Messages {
 
 	private Messages(int data) {
 		byteData.putInt(data);
-
+		byteData.rewind();
 	}
 
 	public ByteBuffer data() {

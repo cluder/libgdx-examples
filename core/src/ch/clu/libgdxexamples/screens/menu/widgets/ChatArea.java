@@ -26,7 +26,17 @@ public class ChatArea extends InputAdapter implements Observer {
 	TextArea textArea;
 	TextField textField;
 
+	public ChatArea(float width, float height) {
+		init(width, height);
+	}
+
 	public ChatArea() {
+		float width = Gdx.graphics.getWidth() * 0.4f;
+		float height = Gdx.graphics.getHeight() * 0.5f;
+		init(width, height);
+	}
+
+	private void init(float width, float height) {
 
 		SteamHelper.get().addObserver(this);
 		Skin skin = ResourceManager.getSkin();
@@ -35,7 +45,7 @@ public class ChatArea extends InputAdapter implements Observer {
 		mainTable = new Table(skin);
 		textArea = new TextArea("", skin);
 
-		mainTable.add(textArea).width(Gdx.graphics.getWidth() * 0.4f).height(Gdx.graphics.getHeight() * 0.5f);
+		mainTable.add(textArea).width(width).height(height);
 		mainTable.row();
 
 		// text field containing previous chat
@@ -54,6 +64,10 @@ public class ChatArea extends InputAdapter implements Observer {
 		return mainTable;
 	}
 
+	public TextField getTextField() {
+		return textField;
+	}
+
 	public void addMessage(String msg) {
 		textArea.appendText(msg + "\n");
 	}
@@ -64,32 +78,29 @@ public class ChatArea extends InputAdapter implements Observer {
 
 		switch (keycode) {
 		case Keys.ESCAPE:
-
+//			textField.setDisabled(true);
 			break;
 		case Keys.ENTER:
 			String text = textField.getText();
 
-//			messages.add(text);
-//			if (messages.size() > maxSize) {
-//				messages.removeFirst();
-//			}
-
 			SteamID steamIDLobby = SteamHelper.get().getSteamIDLobby();
-			SteamHelper.get().getSmm().sendLobbyChatMsg(steamIDLobby, text);
-
-//			textArea.appendText(text + "\n");
-//			textArea.clear();
-//			for (String s : messages) {
-//				textArea.appendText(s + "\n");
-//			}
+			if (steamIDLobby != null)
+				SteamHelper.get().getSmm().sendLobbyChatMsg(steamIDLobby, text);
 
 			textField.setText("");
-
 			break;
 		default:
 			break;
 		}
-		return true;
+		return false;
+	}
+
+	@Override
+	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+		super.touchDown(screenX, screenY, pointer, button);
+
+		return false;
+
 	}
 
 	@Override

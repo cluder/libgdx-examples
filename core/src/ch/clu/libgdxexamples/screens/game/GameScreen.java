@@ -2,6 +2,8 @@ package ch.clu.libgdxexamples.screens.game;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
@@ -18,19 +20,21 @@ import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.net.Socket;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.codedisaster.steamworks.SteamAPI;
 
-import ch.clu.libgdxexamples.input.UIInputController;
+import ch.clu.libgdxexamples.screens.menu.widgets.ChatArea;
+import ch.clu.libgdxexamples.screens.util.Screens;
 import ch.clu.libgdxexamples.util.Debugger;
-import ch.clu.libgdxexamples.util.ResourceManager;
+import ch.clu.libgdxexamples.util.ScreenManager;
 
-public class GameScreen implements Screen {
+public class GameScreen extends InputAdapter implements Screen {
 	// perspective 3d camera
 	public PerspectiveCamera cam3d;
 	public CameraInputController inputController;
@@ -47,8 +51,7 @@ public class GameScreen implements Screen {
 
 	// chat
 	Stage uiStage;
-	public TextField chatField;
-	public TextArea chatArea;
+	public ChatArea chatArea;
 
 	private Image uiTextureImage;
 	private InputMultiplexer inputMultiplexer;
@@ -73,25 +76,18 @@ public class GameScreen implements Screen {
 	private void create() {
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
-		int width = Gdx.graphics.getWidth();
-		int height = Gdx.graphics.getHeight();
-
 		// ui stage
 		uiStage = new Stage(new ScreenViewport());
 
 		// init chat listener and fields
-		Skin defaultSkin = ResourceManager.getSkin();
 
-		chatField = new TextField("", defaultSkin);
-		chatField.setWidth(200);
-		chatField.setMessageText("type to chat");
-		uiStage.addActor(chatField);
+		float chatWidth = Gdx.graphics.getWidth() * 0.3f;
+		float chatHeight = Gdx.graphics.getHeight() * 0.2f;
 
-		chatArea = new TextArea("", defaultSkin);
-		chatArea.setWidth(200);
-		chatArea.setPrefRows(5);
-		chatArea.setHeight(chatArea.getPrefHeight());
-		uiStage.addActor(chatArea);
+		chatArea = new ChatArea(chatWidth, chatHeight);
+		Actor actor = chatArea.getActor();
+		actor.setPosition(chatWidth / 2 + 20, chatHeight / 2 + 50);
+		uiStage.addActor(actor);
 
 		Texture uiTexture = new Texture("text.png");
 		uiTextureImage = new Image(uiTexture);
@@ -101,7 +97,7 @@ public class GameScreen implements Screen {
 		modelBatch = new ModelBatch();
 
 		// create a 3d camera
-		cam3d = new PerspectiveCamera(67, width, height);
+		cam3d = new PerspectiveCamera(67, chatWidth, chatHeight);
 		cam3d.position.set(10f, 10f, 10f);
 		cam3d.lookAt(0, 0, 0);
 		cam3d.near = 0.1f;
@@ -118,35 +114,45 @@ public class GameScreen implements Screen {
 		shipInstance.transform.scl(5);
 		shipInstance.transform.translate(0.5f, 0.5f, 0);
 
-		inputMultiplexer = new InputMultiplexer();
-		inputController = new CameraInputController(cam3d);
-		inputMultiplexer.addProcessor(inputController);
-		inputMultiplexer.addProcessor(new UIInputController(this));
-
-		Gdx.input.setInputProcessor(inputMultiplexer);
-
 		// debug axes / grid
 		createGridid();
 
 		updateUIPosition();
+
+		// remove focus from textfield when something else is clicked
+		uiStage.getRoot().addCaptureListener(new InputListener() {
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+				Actor target = event.getTarget();
+				if (!(target instanceof TextField))
+					uiStage.setKeyboardFocus(null);
+				return false;
+			}
+		});
+
 	}
 
 	@Override
 	public void show() {
+		create();
+		inputMultiplexer = new InputMultiplexer();
+//		inputController = new CameraInputController(cam3d);
+//		inputMultiplexer.addProcessor(inputController);
+		inputMultiplexer.addProcessor(chatArea);
+		inputMultiplexer.addProcessor(uiStage);
+		inputMultiplexer.addProcessor(this);
+
 		Gdx.input.setInputProcessor(inputMultiplexer);
 	}
 
 	@Override
 	public void render(float delta) {
-
 		SteamAPI.runCallbacks();
-//		SteamGameServerAPI.runCallbacks();
 
 		// clear screen and paint a black background
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-		uiStage.act();
+		uiStage.act(delta);
 		uiStage.draw();
 
 		// draw axes/grid
@@ -204,8 +210,6 @@ public class GameScreen implements Screen {
 		int yPos = (int) (Gdx.app.getGraphics().getHeight() - uiTextureImage.getHeight());
 		uiTextureImage.setPosition(Gdx.app.getGraphics().getWidth() - uiTextureImage.getWidth(), yPos);
 		yPos = (int) (Gdx.graphics.getHeight() * 0.15f);
-		chatField.setPosition(Gdx.graphics.getWidth() * 0.01f, yPos);
-		chatArea.setPosition(Gdx.graphics.getWidth() * 0.01f, yPos + chatField.getHeight());
 	}
 
 	/**
@@ -232,10 +236,17 @@ public class GameScreen implements Screen {
 		axesInstance = new ModelInstance(axesModel);
 	}
 
-	public String addChatLine(String name, String text) {
-		chatArea.appendText(name + ":" + text + "\n");
-		chatField.setText("");
-		return text;
+	@Override
+	public boolean keyDown(int keycode) {
+
+		switch (keycode) {
+		case Keys.ESCAPE:
+			ScreenManager.getInstance().setScreen(Screens.MAIN_MENU);
+			break;
+		default:
+			break;
+		}
+		return false;
 	}
 
 }

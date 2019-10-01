@@ -8,9 +8,11 @@ import com.codedisaster.steamworks.SteamID;
 import com.codedisaster.steamworks.SteamNetworking;
 import com.codedisaster.steamworks.SteamNetworking.P2PSend;
 
+import ch.clu.libgdxexamples.screens.util.Screens;
 import ch.clu.libgdxexamples.steam.SteamHelper;
 import ch.clu.libgdxexamples.steam.data.LobbyData;
 import ch.clu.libgdxexamples.steam.data.LobbyMember;
+import ch.clu.libgdxexamples.util.ScreenManager;
 
 public class NetworkUtil {
 	static final String tag = NetworkUtil.class.getSimpleName();
@@ -38,8 +40,10 @@ public class NetworkUtil {
 		LobbyData lobbyData = sh.gatherLobbyData(steamIDLobby);
 		for (LobbyMember m : lobbyData.members) {
 			try {
+				msg.byteData.rewind();
 				boolean sendP2PPacket = sh.getSN().sendP2PPacket(m.steamID, msg.data(), P2PSend.Reliable, 0);
-				Gdx.app.log(tag, String.format("sent %s to members:%s", msg, sendP2PPacket));
+				Gdx.app.log(tag,
+						String.format("sent %s to member %s (%s): success:%s", msg, m.name, m.steamID, sendP2PPacket));
 			} catch (SteamException e) {
 				Gdx.app.log(tag, String.format("failed to send:%s ", msg), e);
 			}
@@ -54,7 +58,7 @@ public class NetworkUtil {
 		if (packetSize <= 0) {
 			return;
 		}
-		Gdx.app.log(tag, String.format("packet available"));
+		Gdx.app.log(tag, String.format("packet available size:%s", packetSize));
 
 		do {
 			// read packet
@@ -88,6 +92,6 @@ public class NetworkUtil {
 
 	private static void onStartGame() {
 		Gdx.app.log(tag, String.format("onStartGame: "));
-
+		ScreenManager.getInstance().setScreen(Screens.GAME);
 	}
 }
