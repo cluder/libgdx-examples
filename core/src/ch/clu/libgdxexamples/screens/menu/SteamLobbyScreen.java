@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 
+import ch.clu.libgdxexamples.net.packets.Messages;
 import ch.clu.libgdxexamples.screens.menu.widgets.ChatArea;
 import ch.clu.libgdxexamples.screens.util.BaseUIScreen;
 import ch.clu.libgdxexamples.screens.util.Screens;
@@ -22,6 +23,7 @@ import ch.clu.libgdxexamples.steam.SteamHelper;
 import ch.clu.libgdxexamples.steam.data.LobbyChatUpdate;
 import ch.clu.libgdxexamples.steam.data.LobbyData;
 import ch.clu.libgdxexamples.steam.data.LobbyMember;
+import ch.clu.libgdxexamples.util.NetworkUtil;
 import ch.clu.libgdxexamples.util.ScreenManager;
 
 @SuppressWarnings("deprecation")
@@ -114,9 +116,7 @@ public class SteamLobbyScreen extends BaseUIScreen implements Observer {
 		startGame.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				SteamHelper sh = SteamHelper.get();
-				String serverName = sh.getSF().getPersonaName() + "'s Server";
-//				sh.getSN().sendP2PPacket(sh.getSteamIDLobby(), data, P2PSend.Reliable, );
+				NetworkUtil.sendToLobbyMembers(Messages.START_GAME);
 			}
 		});
 		setDebugAll(false);

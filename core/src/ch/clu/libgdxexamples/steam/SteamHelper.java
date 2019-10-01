@@ -5,7 +5,6 @@ import static java.lang.String.format;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Observable;
 
@@ -65,9 +64,6 @@ public class SteamHelper extends Observable
 	private SteamID currentLobbyId;
 
 	SteamServerListRequest r = null;
-
-	// simplified data structures
-	LobbyDataList lobbyDataList = new LobbyDataList();
 
 	private SteamHelper() {
 	}
@@ -139,10 +135,6 @@ public class SteamHelper extends Observable
 
 	public SteamNetworking getSN() {
 		return steamNetworking;
-	}
-
-	public LobbyDataList getLobbyList() {
-		return lobbyDataList;
 	}
 
 	/**
@@ -282,7 +274,7 @@ public class SteamHelper extends Observable
 	public void onLobbyMatchList(int lobbiesMatching) {
 		Gdx.app.log(tag, "onLobbyMatchList:" + lobbiesMatching);
 
-		lobbyDataList.lobbyList = new ArrayList<>();
+		LobbyDataList lobbyDataList = new LobbyDataList();
 
 		for (int i = 0; i < lobbiesMatching; i++) {
 			// get lobby infos
@@ -297,7 +289,7 @@ public class SteamHelper extends Observable
 		notifyObservers(lobbyDataList);
 	}
 
-	private LobbyData gatherLobbyData(SteamID lobbyID) {
+	public LobbyData gatherLobbyData(SteamID lobbyID) {
 		LobbyData data = new LobbyData();
 		int lobbyDataCount = smm.getLobbyDataCount(lobbyID);
 		String lobbyName = smm.getLobbyData(lobbyID, LOBBY_KEY_NAME);
