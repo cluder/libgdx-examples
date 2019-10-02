@@ -6,7 +6,6 @@ import java.util.Map;
 import com.badlogic.gdx.Screen;
 
 import ch.clu.libgdxexamples.screens.game.GameScreen;
-import ch.clu.libgdxexamples.screens.menu.JoinMultiplayerScreen;
 import ch.clu.libgdxexamples.screens.menu.ListSteamLobbiesScreen;
 import ch.clu.libgdxexamples.screens.menu.MainMenuScreen;
 import ch.clu.libgdxexamples.screens.menu.MultiplayerScreen;
@@ -20,7 +19,6 @@ public enum Screens {
 	MAIN_MENU, //
 	SETTINGS, //
 	MULTIPLAYER, //
-	JOIN_MP, //
 	LIST_STEAM_LOBBY, //
 	STEAM_LOBBY, //
 	GAME; //
@@ -46,12 +44,6 @@ public enum Screens {
 			screen = screens.get(this);
 			if (screen == null) {
 				screens.put(this, screen = new MultiplayerScreen());
-			}
-			return screen;
-		case JOIN_MP:
-			screen = screens.get(this);
-			if (screen == null) {
-				screens.put(this, screen = new JoinMultiplayerScreen());
 			}
 			return screen;
 		case LIST_STEAM_LOBBY:
