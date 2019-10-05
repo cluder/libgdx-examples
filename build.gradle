@@ -37,7 +37,7 @@ allprojects {
     }
 }
 
-project(":desktop") { 
+project(":desktop") {
     apply plugin: "java-library"
 
 
