@@ -1,25 +1,39 @@
 package ch.clu.libgdxexamples.screens.game;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
+import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.net.Socket;
+import com.badlogic.gdx.physics.bullet.collision.CollisionObjectWrapper;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionAlgorithm;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
+import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
+import com.badlogic.gdx.physics.bullet.collision.btDispatcherInfo;
+import com.badlogic.gdx.physics.bullet.collision.btManifoldResult;
+import com.badlogic.gdx.physics.bullet.collision.btPersistentManifold;
+import com.badlogic.gdx.physics.bullet.collision.ebtDispatcherQueryType;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -29,12 +43,17 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.codedisaster.steamworks.SteamAPI;
 
+import ch.clu.libgdxexamples.screens.game.objects.BulletContactListener;
+import ch.clu.libgdxexamples.screens.game.objects.Floor;
+import ch.clu.libgdxexamples.screens.game.objects.GameObject;
+import ch.clu.libgdxexamples.screens.game.objects.Player;
 import ch.clu.libgdxexamples.screens.menu.widgets.ChatArea;
 import ch.clu.libgdxexamples.screens.util.Screens;
 import ch.clu.libgdxexamples.util.Debugger;
 import ch.clu.libgdxexamples.util.ScreenManager;
 
 public class GameScreen extends InputAdapter implements Screen {
+	String tag = GameScreen.class.getSimpleName();
 	// perspective 3d camera
 	public PerspectiveCamera cam3d;
 	public CameraInputController inputController;
@@ -46,8 +65,8 @@ public class GameScreen extends InputAdapter implements Screen {
 	public ModelBatch modelBatch;
 	public Model axesModel;
 	public ModelInstance axesInstance;
-	public Model shipModel;
-	public ModelInstance shipInstance;
+
+	Environment env;
 
 	// chat
 	Stage uiStage;
@@ -56,7 +75,15 @@ public class GameScreen extends InputAdapter implements Screen {
 	private Image uiTextureImage;
 	private InputMultiplexer inputMultiplexer;
 
-	boolean isServer = false;
+	Player player;
+	private Floor floor;
+	private btDefaultCollisionConfiguration collisionConfig;
+	private btCollisionDispatcher dispatcher;
+
+	boolean debug = false;
+	private BulletContactListener contactListener;
+
+	Map<btCollisionObject, GameObject> objectMap = new HashMap<>();
 
 	public GameScreen() {
 		create();
@@ -66,21 +93,16 @@ public class GameScreen extends InputAdapter implements Screen {
 		create();
 	}
 
-	public void startNetworkServer() {
-		if (isServer == false) {
-			isServer = true;
-
-		}
-	}
-
 	private void create() {
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
+
+		collisionConfig = new btDefaultCollisionConfiguration();
+		dispatcher = new btCollisionDispatcher(collisionConfig);
 
 		// ui stage
 		uiStage = new Stage(new ScreenViewport());
 
 		// init chat listener and fields
-
 		float chatWidth = Gdx.graphics.getWidth() * 0.3f;
 		float chatHeight = Gdx.graphics.getHeight() * 0.2f;
 
@@ -105,21 +127,25 @@ public class GameScreen extends InputAdapter implements Screen {
 		cam3d.update();
 
 		// load 3d model
-		AssetManager mgr = new AssetManager();
-		mgr.load("ship/ship.g3dj", Model.class);
-		mgr.finishLoading();
+		floor = new Floor();
 
-		shipModel = mgr.get("ship/ship.g3dj");
-		shipInstance = new ModelInstance(shipModel);
-		shipInstance.transform.scl(5);
-		shipInstance.transform.translate(0.5f, 0.5f, 0);
+		// light
+		env = new Environment();
+		env.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
+		env.set(new ColorAttribute(ColorAttribute.Specular, 0.2f, 0.1f, 0.7f, 1f));
+		env.add(new DirectionalLight().set(0.7f, 0.7f, 0.7f, -1f, -0.8f, -0.2f));
+
+		// player
+		player = new Player();
+		player.getModelInstance().transform.setTranslation(0, 5, 0);
+		objectMap.put(player.object, player);
 
 		// debug axes / grid
-		createGridid();
+		createGrid();
 
 		updateUIPosition();
 
-		// remove focus from textfield when something else is clicked
+		// remove focus from text field when something else is clicked
 		uiStage.getRoot().addCaptureListener(new InputListener() {
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 				Actor target = event.getTarget();
@@ -129,14 +155,16 @@ public class GameScreen extends InputAdapter implements Screen {
 			}
 		});
 
+		// bullet
+		contactListener = new BulletContactListener(objectMap);
 	}
 
 	@Override
 	public void show() {
-		create();
+
 		inputMultiplexer = new InputMultiplexer();
-//		inputController = new CameraInputController(cam3d);
-//		inputMultiplexer.addProcessor(inputController);
+		inputController = new CameraInputController(cam3d);
+		inputMultiplexer.addProcessor(inputController);
 		inputMultiplexer.addProcessor(chatArea);
 		inputMultiplexer.addProcessor(uiStage);
 		inputMultiplexer.addProcessor(this);
@@ -152,22 +180,28 @@ public class GameScreen extends InputAdapter implements Screen {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
+		// update player and stages
 		uiStage.act(delta);
-		uiStage.draw();
+		player.update(delta);
 
 		// draw axes/grid
 		modelBatch.begin(cam3d);
-		modelBatch.render(axesInstance);
-		modelBatch.render(shipInstance);
+		modelBatch.render(axesInstance, env);
+		modelBatch.render(floor.getModelInstance(), env);
+		modelBatch.render(player.getModelInstance(), env);
 		modelBatch.end();
 
+		// draw ui
+		uiStage.draw();
+
 		Debugger.printDebugInfo();
-		shipInstance.transform.rotate(0, 1, 0, 0.5f);
+//		floorInstance.transform.rotate(0, 1, 0, 0.5f);
+
+		checkCollision(player.object, floor.object);
 	}
 
 	@Override
 	public void resize(int width, int height) {
-
 		// update 2d stage
 		uiStage.getViewport().update(width, height, true);
 
@@ -177,6 +211,7 @@ public class GameScreen extends InputAdapter implements Screen {
 		cam3d.viewportHeight = height;
 		cam3d.viewportWidth = width;
 		cam3d.update();
+
 	}
 
 	@Override
@@ -196,11 +231,16 @@ public class GameScreen extends InputAdapter implements Screen {
 
 	@Override
 	public void dispose() {
-
 		uiStage.dispose();
 		axesModel.dispose();
 		modelBatch.dispose();
-		shipModel.dispose();
+
+		floor.dispose();
+		player.dispose();
+
+		collisionConfig.dispose();
+		dispatcher.dispose();
+		contactListener.dispose();
 	}
 
 	/**
@@ -215,7 +255,7 @@ public class GameScreen extends InputAdapter implements Screen {
 	/**
 	 * Grid with debug axis copied from BaseG3dTest.
 	 */
-	private void createGridid() {
+	private void createGrid() {
 		ModelBuilder modelBuilder = new ModelBuilder();
 		modelBuilder.begin();
 		MeshPartBuilder builder = modelBuilder.part("grid", GL20.GL_LINES, Usage.Position | Usage.ColorUnpacked,
@@ -238,15 +278,54 @@ public class GameScreen extends InputAdapter implements Screen {
 
 	@Override
 	public boolean keyDown(int keycode) {
-
 		switch (keycode) {
 		case Keys.ESCAPE:
 			ScreenManager.getInstance().setScreen(Screens.MAIN_MENU);
+			break;
+		case Keys.R:
+			// reset
+			player.reset();
+			break;
+		case Keys.D:
+			// reset
+			debug = !debug;
 			break;
 		default:
 			break;
 		}
 		return false;
+	}
+
+	private boolean checkCollision(btCollisionObject o1, btCollisionObject o2) {
+		boolean hit = false;
+		CollisionObjectWrapper co1 = new CollisionObjectWrapper(o1);
+		CollisionObjectWrapper co2 = new CollisionObjectWrapper(o2);
+
+		btCollisionAlgorithm algo = dispatcher.findAlgorithm(co1.wrapper, co2.wrapper, null,
+				ebtDispatcherQueryType.BT_CONTACT_POINT_ALGORITHMS);
+		if (algo != null) {
+			btDispatcherInfo di = new btDispatcherInfo();
+			btManifoldResult result = new btManifoldResult(co1.wrapper, co2.wrapper);
+
+			algo.processCollision(co1.wrapper, co2.wrapper, di, result);
+
+			btPersistentManifold persistentManifold = result.getPersistentManifold();
+
+			int numContacts = persistentManifold.getNumContacts();
+			hit = numContacts > 0;
+			if (hit) {
+				Gdx.app.log(tag, String.format("hit:%s (%s)", hit, numContacts));
+			}
+
+			dispatcher.freeCollisionAlgorithm(algo.getCPointer());
+			result.dispose();
+			di.dispose();
+		}
+
+		co1.dispose();
+		co2.dispose();
+
+		return hit;
 	}
 
 }

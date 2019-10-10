@@ -11,6 +11,3 @@
 #
 # -----------------------------------------
 # 
-# 3D Model Source:
-# https://github.com/xoppa/blog/tree/master/tutorials/assets/loadmodels/dat
-#

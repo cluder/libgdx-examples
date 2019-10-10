@@ -1,6 +1,7 @@
 package ch.clu.libgdxexamples;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.physics.bullet.Bullet;
 
 import ch.clu.libgdxexamples.screens.util.Screens;
 import ch.clu.libgdxexamples.steam.SteamHelper;
@@ -12,6 +13,8 @@ public class LibGDXExamples extends Game {
 	@Override
 	public void create() {
 		sh.initSteam();
+
+		Bullet.init();
 
 		ScreenManager.getInstance().initialize(this);
 
