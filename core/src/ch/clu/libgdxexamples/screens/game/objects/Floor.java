@@ -10,6 +10,13 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 public class Floor extends GameObject {
 
 	public Floor() {
+		super(0, 0, 0);
+		object.setCollisionFlags(object.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_STATIC_OBJECT);
+	}
+
+	@Override
+	protected float getMass() {
+		return 0;
 	}
 
 	@Override
@@ -24,14 +31,8 @@ public class Floor extends GameObject {
 	}
 
 	@Override
-	btCollisionObject getObject() {
-		btCollisionShape btShape = new btBoxShape(new Vector3(10, 0.3f, 10));
-
-		btCollisionObject btObject = new btCollisionObject();
-		btObject.setCollisionShape(btShape);
-		btObject.setCollisionFlags(
-				btObject.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
-		return btObject;
+	btCollisionShape getCollisionShape() {
+		return new btBoxShape(new Vector3(10, 0.3f, 10));
 	}
 
 	@Override
